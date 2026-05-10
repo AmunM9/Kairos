@@ -112,12 +112,12 @@ export default function VideoDetailPanel({ video, onClose }: Props) {
         onClick={e => e.stopPropagation()}
       >
         {/* Left Sidebar — Video Preview */}
-        <div className="w-full lg:w-80 flex-shrink-0 bg-black flex flex-col justify-between border-b lg:border-b-0 lg:border-r border-white/5 relative">
-          <div className="flex-1 flex items-center justify-center min-h-[300px] lg:min-h-0 bg-black/40">
+        <div className="w-full lg:w-80 flex-shrink-0 bg-black flex flex-col justify-between border-b lg:border-b-0 lg:border-r border-white/5 relative h-[250px] sm:h-[300px] lg:h-full">
+          <div className="w-full h-full flex items-center justify-center bg-black/40 overflow-hidden">
             {embedUrl ? (
               <iframe
                 src={embedUrl}
-                className="w-full h-full aspect-[9/16] lg:aspect-auto"
+                className="w-full h-full max-h-full aspect-[9/16] lg:aspect-auto"
                 allow="autoplay; clipboard-write; encrypted-media; picture-in-picture"
                 allowFullScreen
               />
@@ -130,7 +130,7 @@ export default function VideoDetailPanel({ video, onClose }: Props) {
               </div>
             )}
           </div>
-          <div className="p-5 border-t border-white/5 bg-black/20 space-y-2">
+          <div className="p-5 border-t border-white/5 bg-black/20 space-y-2 hidden lg:block">
             <h4 className="text-sm font-medium text-foreground line-clamp-2 leading-snug">
               {video.title || 'Sin título'}
             </h4>
@@ -146,7 +146,7 @@ export default function VideoDetailPanel({ video, onClose }: Props) {
         {/* Right Area — Strictly Qualitative & Quantitative Breakdown */}
         <div className="flex-1 flex flex-col min-w-0 overflow-y-auto scrollbar-none">
           {/* Header */}
-          <div className="p-6 border-b border-white/5 sticky top-0 bg-background/80 backdrop-blur-xl z-20 flex flex-col gap-4">
+          <div className="p-6 border-b border-white/5 lg:sticky lg:top-0 bg-background lg:bg-background/80 lg:backdrop-blur-xl z-20 flex flex-col gap-4">
             <div className="flex items-start justify-between gap-4">
               <div className="min-w-0">
                 <div className="flex items-center gap-2 mb-1.5 flex-wrap">
@@ -160,8 +160,8 @@ export default function VideoDetailPanel({ video, onClose }: Props) {
                     Lanzado: {publishedDate.toLocaleDateString()}
                   </span>
                 </div>
-                <h2 className="font-semibold text-xl sm:text-2xl tracking-tight text-foreground leading-snug">
-                  Por qué este contenido explotó
+                <h2 className="font-semibold text-xl sm:text-2xl tracking-tight text-foreground leading-snug line-clamp-2" title={video.title}>
+                  {video.title || 'Sin título'}
                 </h2>
                 <p className="text-xs text-muted-foreground mt-1 font-light">
                   Análisis ejecutivo de la tracción, psicología e ingeniería viral de la pieza.
@@ -192,7 +192,7 @@ export default function VideoDetailPanel({ video, onClose }: Props) {
             
             {/* Quantitative Audience Penetration Insight */}
             {audienceRatio !== null && (
-              <div className="bg-white/[0.02] border border-white/5 rounded-2xl p-4 flex items-center gap-3">
+              <div className="bg-[#111722]/30 border border-white/5 hover:border-blue-500/20 rounded-2xl p-4 flex items-center gap-3 shadow-[inset_0_1px_2px_rgba(255,255,255,0.03)] hover:shadow-[0_0_24px_-12px_rgba(59,130,246,0.15)] transition-all duration-300">
                 <Sparkles className="text-white/80 flex-shrink-0" size={18} />
                 <p className="text-xs text-muted-foreground font-light leading-relaxed">
                   Este Short obtuvo <span className="font-semibold text-foreground">{audienceRatio.toFixed(1)} veces</span> más vistas que la base de suscriptores del canal, lo que demuestra un altísimo alcance orgánico fuera de su comunidad core.
@@ -201,7 +201,7 @@ export default function VideoDetailPanel({ video, onClose }: Props) {
             )}
 
             {/* Performance metrics inside beautiful premium containers */}
-            <section className="bg-white/[0.02] border border-white/5 rounded-3xl p-5 space-y-4">
+            <section className="bg-[#111722]/30 border border-white/5 hover:border-blue-500/20 rounded-3xl p-5 space-y-4 shadow-[inset_0_1px_2px_rgba(255,255,255,0.03)] hover:shadow-[0_0_24px_-12px_rgba(59,130,246,0.2)] transition-all duration-300">
               <div className="flex items-center gap-2">
                 <TrendingUp size={16} className="text-muted-foreground" />
                 <h3 className="text-xs font-semibold tracking-[0.16em] uppercase text-muted-foreground/80">01 · Performance - Métricas de tracción</h3>
@@ -234,7 +234,7 @@ export default function VideoDetailPanel({ video, onClose }: Props) {
 
                 {/* Visual Script Timeline */}
                 {analysis.replicationStrategy.scriptFramework && (
-                  <section className="bg-white/[0.02] border border-white/5 rounded-3xl p-5 space-y-5">
+                  <section className="bg-[#111722]/30 border border-white/5 hover:border-blue-500/20 rounded-3xl p-5 space-y-5 shadow-[inset_0_1px_2px_rgba(255,255,255,0.03)] hover:shadow-[0_0_24px_-12px_rgba(59,130,246,0.2)] transition-all duration-300">
                     <div className="flex items-center gap-2">
                       <Zap size={16} className="text-muted-foreground" />
                       <h3 className="text-xs font-semibold tracking-[0.16em] uppercase text-muted-foreground/80">
@@ -272,7 +272,7 @@ export default function VideoDetailPanel({ video, onClose }: Props) {
                 )}
                 
                 {/* Section 3: Concepto e Idea Central */}
-                <section className="bg-white/[0.02] border border-white/5 rounded-3xl p-5 space-y-4">
+                <section className="bg-[#111722]/30 border border-white/5 hover:border-blue-500/20 rounded-3xl p-5 space-y-4 shadow-[inset_0_1px_2px_rgba(255,255,255,0.03)] hover:shadow-[0_0_24px_-12px_rgba(59,130,246,0.2)] transition-all duration-300">
                   <div className="flex items-center gap-2">
                     <Sparkles size={16} className="text-muted-foreground" />
                     <h3 className="text-xs font-semibold tracking-[0.16em] uppercase text-muted-foreground/80">
@@ -285,7 +285,7 @@ export default function VideoDetailPanel({ video, onClose }: Props) {
                 </section>
 
                 {/* Section 4: Hook */}
-                <section className="bg-white/[0.02] border border-white/5 rounded-3xl p-5 space-y-4">
+                <section className="bg-[#111722]/30 border border-white/5 hover:border-blue-500/20 rounded-3xl p-5 space-y-4 shadow-[inset_0_1px_2px_rgba(255,255,255,0.03)] hover:shadow-[0_0_24px_-12px_rgba(59,130,246,0.2)] transition-all duration-300">
                   <div className="flex items-center gap-2">
                     <Target size={16} className="text-muted-foreground" />
                     <h3 className="text-xs font-semibold tracking-[0.16em] uppercase text-muted-foreground/80">
@@ -298,7 +298,7 @@ export default function VideoDetailPanel({ video, onClose }: Props) {
                 </section>
 
                 {/* Section 5: Retención */}
-                <section className="bg-white/[0.02] border border-white/5 rounded-3xl p-5 space-y-4">
+                <section className="bg-[#111722]/30 border border-white/5 hover:border-blue-500/20 rounded-3xl p-5 space-y-4 shadow-[inset_0_1px_2px_rgba(255,255,255,0.03)] hover:shadow-[0_0_24px_-12px_rgba(59,130,246,0.2)] transition-all duration-300">
                   <div className="flex items-center gap-2">
                     <Repeat size={16} className="text-muted-foreground" />
                     <h3 className="text-xs font-semibold tracking-[0.16em] uppercase text-muted-foreground/80">
@@ -311,14 +311,14 @@ export default function VideoDetailPanel({ video, onClose }: Props) {
                 </section>
 
                 {/* Section 6: Fórmula de Título */}
-                <section className="bg-white/[0.02] border border-white/5 rounded-3xl p-5 space-y-4">
+                <section className="bg-[#111722]/30 border border-white/5 hover:border-blue-500/20 rounded-3xl p-5 space-y-4 shadow-[inset_0_1px_2px_rgba(255,255,255,0.03)] hover:shadow-[0_0_24px_-12px_rgba(59,130,246,0.2)] transition-all duration-300">
                   <div className="flex items-center gap-2">
                     <Wand2 size={16} className="text-muted-foreground" />
                     <h3 className="text-xs font-semibold tracking-[0.16em] uppercase text-muted-foreground/80">
                       06 · Fórmula de título - Adapta este título a tu nicho
                     </h3>
                   </div>
-                  <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-5 flex items-center justify-between gap-4 relative group">
+                  <div className="rounded-2xl border border-white/5 bg-[#111722]/40 hover:border-blue-500/10 p-5 flex items-center justify-between gap-4 relative group transition-all duration-300 shadow-[inset_0_1px_1px_rgba(255,255,255,0.02)]">
                     <code className="text-sm text-foreground font-mono leading-relaxed break-all flex-1 pr-6">
                       {analysis.replicationStrategy.titleFormula}
                     </code>
@@ -337,7 +337,7 @@ export default function VideoDetailPanel({ video, onClose }: Props) {
                 </section>
 
                 {/* Section 7: Estrategia de Replicación */}
-                <section className="bg-white/[0.02] border border-white/5 rounded-3xl p-5 space-y-4">
+                <section className="bg-[#111722]/30 border border-white/5 hover:border-blue-500/20 rounded-3xl p-5 space-y-4 shadow-[inset_0_1px_2px_rgba(255,255,255,0.03)] hover:shadow-[0_0_24px_-12px_rgba(59,130,246,0.2)] transition-all duration-300">
                   <div className="flex items-center gap-2">
                     <ListChecks size={16} className="text-muted-foreground" />
                     <h3 className="text-xs font-semibold tracking-[0.16em] uppercase text-muted-foreground/80">
@@ -357,7 +357,7 @@ export default function VideoDetailPanel({ video, onClose }: Props) {
                 </section>
 
                 {/* Section 8: Cómo superar esta versión (Diferenciación) */}
-                <section className="bg-white/[0.02] border border-white/5 rounded-3xl p-5 space-y-4">
+                <section className="bg-[#111722]/30 border border-white/5 hover:border-blue-500/20 rounded-3xl p-5 space-y-4 shadow-[inset_0_1px_2px_rgba(255,255,255,0.03)] hover:shadow-[0_0_24px_-12px_rgba(59,130,246,0.2)] transition-all duration-300">
                   <div className="flex items-center gap-2">
                     <Sparkles size={16} className="text-muted-foreground" />
                     <h3 className="text-xs font-semibold tracking-[0.16em] uppercase text-muted-foreground/80">
@@ -408,7 +408,7 @@ function MetricCard({
   highlight?: boolean;
 }) {
   return (
-    <div className={`rounded-2xl border border-white/5 p-3.5 bg-white/[0.02] flex flex-col justify-between min-h-[84px] ${highlight ? 'shadow-[0_0_24px_-6px_oklch(0.78_0.16_285_/_0.2)]' : ''}`}>
+    <div className={`rounded-2xl border border-white/5 p-3.5 bg-[#111722]/10 hover:border-blue-500/10 flex flex-col justify-between min-h-[84px] transition-all duration-300 ${highlight ? 'shadow-[0_0_24px_-8px_rgba(59,130,246,0.3)] border-blue-500/20 bg-blue-500/[0.02]' : ''}`}>
       <div className="flex items-center gap-1.5 text-muted-foreground">
         {icon}
         <span className="text-[9px] font-semibold tracking-wider uppercase">

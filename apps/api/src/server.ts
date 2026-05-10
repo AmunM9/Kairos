@@ -1,5 +1,7 @@
 import express from 'express';
 import cors from 'cors';
+import path from 'path';
+import fs from 'fs';
 import { env } from './config/env';
 
 // Routers
@@ -24,6 +26,25 @@ app.use('/api/health', healthRouter);
 app.use('/api/search', searchRouter);
 app.use('/api/usage', usageRouter);
 app.use('/api/analysis', analysisRouter);
+
+// Serve static assets in production (Frontend SPA)
+if (env.NODE_ENV === 'production' || process.env.NODE_ENV === 'production') {
+  const webDistPath = path.resolve(__dirname, '../../web/dist');
+  if (fs.existsSync(webDistPath)) {
+    console.log(`[server]: Serving static files from ${webDistPath}`);
+    app.use(express.static(webDistPath));
+    
+    // Wildcard route to serve the React application index.html for SPA routing
+    app.get('*', (req, res, next) => {
+      if (req.path.startsWith('/api/')) {
+        return next();
+      }
+      res.sendFile(path.join(webDistPath, 'index.html'));
+    });
+  } else {
+    console.warn(`[server]: Frontend build folder not found at ${webDistPath}. Static file serving disabled.`);
+  }
+}
 
 // Error Handler
 app.use(errorHandler);

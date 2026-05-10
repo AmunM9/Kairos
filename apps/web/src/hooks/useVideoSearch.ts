@@ -173,6 +173,7 @@ export function useVideoSearch(): VideoSearchResult {
                   });
                 }
               } else if (event.type === 'done') {
+                console.log("[KAIROS_DEBUG] stream done received", { nextPageToken: event.nextPageToken, platformCounts: event.platformCounts });
                 setErrors(event.errors);
                 setIsStreaming(false);
                 setPageToken(event.nextPageToken || null);
@@ -218,8 +219,10 @@ export function useVideoSearch(): VideoSearchResult {
 
     try {
       const currentToken = pageTokenRef.current;
+      console.log("[KAIROS_DEBUG] fetchNextPage triggered", { nextPage, currentToken });
       const res = await fetch(`${API_URL}/api/search?${buildParams(nextPage, currentToken)}`);
       if (!res.ok) {
+        console.error("[KAIROS_DEBUG] fetch failed", res.status);
         setIsFetchingNextPage(false);
         return;
       }
@@ -229,15 +232,30 @@ export function useVideoSearch(): VideoSearchResult {
       const existingIds = new Set(resultsRef.current.map(v => v.id));
       const uniqueResults = (data.results || []).filter((v: VideoCard) => !existingIds.has(v.id));
 
-      if (uniqueResults.length > 0) {
-        setResultPages(prev => [...prev, uniqueResults]);
-      }
+      console.log("[KAIROS_DEBUG] results received", {
+        totalResults: data.results?.length,
+        uniqueResults: uniqueResults.length,
+        hasMore: data.hasMore,
+        nextPageToken: data.nextPageToken
+      });
+
       setHasMore(data.hasMore);
       setPageToken(data.nextPageToken || null);
       setPage(nextPage);
+
+      if (uniqueResults.length > 0) {
+        setResultPages(prev => [...prev, uniqueResults]);
+        setIsFetchingNextPage(false);
+      } else if (data.hasMore) {
+        console.log("[KAIROS_DEBUG] All results were duplicates, auto-fetching next page...");
+        setIsFetchingNextPage(false);
+        setTimeout(() => {
+          fetchNextPage();
+        }, 50);
+      } else {
+        setIsFetchingNextPage(false);
+      }
     } catch {
-      // silently ignore pagination errors
-    } finally {
       setIsFetchingNextPage(false);
     }
   }, [buildParams, setPageToken, setIsFetchingNextPage, setPage, setHasMore]);

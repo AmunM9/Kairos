@@ -1,0 +1,28 @@
+# Dependencies
+node_modules
+.pnpm-store
+
+# Build output
+dist
+build
+.output
+
+# Environment — never commit real keys
+.env
+.env.local
+.env.*.local
+
+# Logs
+*.log
+pnpm-debug.log*
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/settings.json
+.idea
+
+# Claude Code
+.claude/

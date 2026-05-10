@@ -1,0 +1,37 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --bg-primary: 0 0% 99%;
+    --bg-secondary: 0 0% 96%;
+    --bg-elevated: 0 0% 100%;
+    --border-subtle: 0 0% 92%;
+    --border-default: 0 0% 87%;
+    --text-primary: 0 0% 9%;
+    --text-secondary: 0 0% 32%;
+    --text-tertiary: 0 0% 55%;
+    --accent: 12 76% 51%;
+    --accent-fg: 0 0% 100%;
+  }
+
+  .dark {
+    --bg-primary: 0 0% 7%;
+    --bg-secondary: 0 0% 11%;
+    --bg-elevated: 0 0% 14%;
+    --border-subtle: 0 0% 18%;
+    --border-default: 0 0% 24%;
+    --text-primary: 0 0% 98%;
+    --text-secondary: 0 0% 71%;
+    --text-tertiary: 0 0% 55%;
+    --accent: 12 76% 56%;
+    --accent-fg: 0 0% 7%;
+  }
+
+  body {
+    background: hsl(var(--bg-primary));
+    color: hsl(var(--text-primary));
+    transition: background-color 200ms ease, color 200ms ease;
+  }
+}

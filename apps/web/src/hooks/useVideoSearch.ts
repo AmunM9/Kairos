@@ -124,7 +124,7 @@ export function useVideoSearch(): VideoSearchResult {
     setIsStreaming(true);
     setLoadingPlatforms(new Set(platformsRef.current.map(p => String(p))));
 
-    const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+    const API_URL = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? '' : 'http://localhost:3001');
     const params = new URLSearchParams({
       q: queryRef.current,
       platforms: platformsRef.current.join(','),
@@ -215,7 +215,7 @@ export function useVideoSearch(): VideoSearchResult {
     if (isStreamingRef.current || isFetchingRef.current || !hasMoreRef.current) return;
     setIsFetchingNextPage(true);
     const nextPage = pageRef.current + 1;
-    const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+    const API_URL = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? '' : 'http://localhost:3001');
 
     try {
       const currentToken = pageTokenRef.current;

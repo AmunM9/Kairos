@@ -13,8 +13,7 @@ function useColumnCount() {
     const calc = () => {
       if (window.innerWidth >= 1280) return 4;
       if (window.innerWidth >= 1024) return 3;
-      if (window.innerWidth >= 640) return 2;
-      return 1;
+      return 2;
     };
     setCols(calc());
     const handler = () => setCols(calc());
@@ -66,9 +65,9 @@ const VideoGrid = () => {
 
   if (fullSkeleton) {
     return (
-      <div className="flex gap-4">
+      <div className="flex gap-2 sm:gap-4">
         {Array.from({ length: colCount }).map((_, c) => (
-          <div key={c} className="flex flex-col flex-1 gap-4">
+          <div key={c} className="flex flex-col flex-1 gap-2 sm:gap-4">
             {[...Array(2)].map((__, i) => <SkeletonCard key={i} />)}
           </div>
         ))}
@@ -101,9 +100,9 @@ const VideoGrid = () => {
       </div>
 
       {/* JS-distributed columns: new items append per-column without CSS reflow */}
-      <div className="flex gap-4 items-start">
+      <div className="flex gap-2 sm:gap-4 items-start">
         {columns.map((col, colIdx) => (
-          <div key={colIdx} className="flex flex-col flex-1 gap-4">
+          <div key={colIdx} className="flex flex-col flex-1 gap-2 sm:gap-4">
             {col.map((video, rowIdx) => (
               <motion.div
                 key={video.id}

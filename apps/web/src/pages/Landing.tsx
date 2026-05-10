@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Sparkles, TrendingUp, Zap } from 'lucide-react';
+import { Sparkles } from 'lucide-react';
 import SearchBar from '../components/SearchBar';
 import VideoGrid from '../components/VideoGrid';
 import VideoDetailPanel from '../components/VideoDetailPanel';
@@ -26,34 +26,16 @@ const Landing = () => {
     { text: 'Marcas personales de éxito', icon: '🔥' }
   ];
 
-  const highlights = [
-    {
-      icon: <Sparkles size={18} className="text-foreground/90" />,
-      title: "Decodifica Hooks",
-      desc: "Desglosamos los primeros 3 segundos clave que atrapan la atención."
-    },
-    {
-      icon: <TrendingUp size={18} className="text-foreground/90" />,
-      title: "Líneas de Tiempo",
-      desc: "Estructuras de guion interactivas listas para ser replicadas."
-    },
-    {
-      icon: <Zap size={18} className="text-foreground/90" />,
-      title: "Títulos Adaptables",
-      desc: "Fórmulas de copiado rápido diseñadas para maximizar el CTR."
-    }
-  ];
-
   const isIdle = searchState === 'idle';
 
   return (
-    <div className="w-full flex flex-col items-center min-h-full pb-20 px-6">
+    <div className="w-full flex flex-col items-center min-h-full pb-10 px-4 sm:px-6">
       {/* Centering Wrapper that smoothly transitions padding/margins */}
       <motion.div
         layout
         transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
         className={`w-full flex flex-col items-center ${
-          isIdle ? 'pt-[12vh] space-y-12' : 'pt-4 space-y-0'
+          isIdle ? 'pt-[5vh] space-y-8' : 'pt-4 space-y-0'
         }`}
       >
         <AnimatePresence>
@@ -63,7 +45,7 @@ const Landing = () => {
               initial={{ opacity: 1, height: 'auto' }}
               exit={{ opacity: 0, height: 0, overflow: 'hidden' }}
               transition={{ duration: 0.4 }}
-              className="flex flex-col items-center space-y-12 w-full"
+              className="flex flex-col items-center space-y-6 w-full"
             >
               {/* Premium Badge */}
               <motion.div
@@ -75,24 +57,24 @@ const Landing = () => {
                 <Sparkles size={11} className="animate-pulse text-foreground/80" />
                 LA CIENCIA DETRÁS DE LOS VIDEOS VIRALES
               </motion.div>
-
+ 
               {/* Hero Headline */}
-              <div className="space-y-6 max-w-3xl text-center">
+              <div className="space-y-4 max-w-3xl text-center">
                 <h1
                   className="text-center text-4xl font-medium tracking-tighter text-foreground sm:text-5xl md:text-6xl lg:text-[76px] lg:leading-[1.05]"
                   style={{ fontFamily: "'Inter', ui-sans-serif, system-ui, sans-serif" }}
                 >
                   Crea con ventaja{userName ? `, ${userName}` : ""}
                 </h1>
-
-                <p className="mx-auto mt-6 max-w-xl text-center text-base text-muted-foreground sm:text-lg font-light leading-relaxed">
+ 
+                <p className="mx-auto mt-4 max-w-xl text-center text-base text-muted-foreground sm:text-lg font-light leading-relaxed">
                   Busca referencias virales y encuentra la estructura de contenido que funciona.
                 </p>
               </div>
             </motion.div>
           )}
         </AnimatePresence>
-
+ 
         {/* Search Bar Container */}
         <motion.div
           layout
@@ -101,7 +83,7 @@ const Landing = () => {
           <div className="absolute -inset-1 rounded-[36px] bg-[var(--gradient-brand)] opacity-20 blur-3xl animate-glow-pulse" />
           <SearchBar variant="hero" />
         </motion.div>
-
+ 
         {/* Suggestions & Highlights - Animate Presence */}
         <AnimatePresence>
           {isIdle && (
@@ -111,10 +93,10 @@ const Landing = () => {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
               transition={{ duration: 0.4 }}
-              className="w-full flex flex-col items-center space-y-12 pt-12"
+              className="w-full flex flex-col items-center space-y-8 pt-6"
             >
               {/* Suggestions */}
-              <div className="flex flex-col items-center space-y-4">
+              <div className="flex flex-col items-center space-y-3">
                 <p className="text-[11px] font-semibold tracking-[0.18em] text-muted-foreground/80 uppercase">
                   🎯 IDEAS PARA EMPEZAR A BUSCAR:
                 </p>
@@ -130,22 +112,6 @@ const Landing = () => {
                     </button>
                   ))}
                 </div>
-              </div>
-
-              {/* Highlights */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full max-w-3xl pt-12 border-t border-white/5">
-                {highlights.map((h, idx) => (
-                  <div
-                    key={idx}
-                    className="flex flex-col items-center md:items-start text-center md:text-left space-y-3 p-5 rounded-3xl hover:bg-white/[0.02] transition-colors duration-300 border border-transparent hover:border-white/5"
-                  >
-                    <div className="p-3 rounded-2xl border border-white/10 bg-white/[0.04] backdrop-blur-xl">
-                      {h.icon}
-                    </div>
-                    <h4 className="text-base font-medium tracking-tight text-foreground">{h.title}</h4>
-                    <p className="text-xs text-muted-foreground leading-relaxed font-light">{h.desc}</p>
-                  </div>
-                ))}
               </div>
             </motion.div>
           )}

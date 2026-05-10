@@ -9,7 +9,6 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@kairos/apify-client": "workspace:*",
     "@kairos/types": "workspace:*",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",

@@ -6,7 +6,6 @@ dotenv.config({ path: path.resolve(__dirname, '../../../../.env') });
 
 export const env = {
   PORT: process.env.PORT || '3001',
-  APIFY_API_TOKEN: process.env.APIFY_API_TOKEN || '',
   YOUTUBE_API_KEY: process.env.YOUTUBE_API_KEY || '',
   APIFY_MOCK_MODE: process.env.APIFY_MOCK_MODE === 'true',
   ALLOWED_ORIGIN: process.env.ALLOWED_ORIGIN || 'http://localhost:5173',

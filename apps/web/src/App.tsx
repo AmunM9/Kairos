@@ -5,7 +5,6 @@ import Results from './pages/Results';
 import About from './components/About';
 import { BackgroundFX } from './components/BackgroundFX';
 import { NamePromptModal } from './components/NamePromptModal';
-import ThemeToggle from './components/ThemeToggle';
 
 function App() {
   const searchState = useAppStore(state => state.searchState);
@@ -73,7 +72,6 @@ function App() {
             >
               About
             </button>
-            <ThemeToggle />
           </nav>
         </div>
       </header>

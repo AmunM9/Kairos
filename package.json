@@ -19,7 +19,6 @@
   },
   "pnpm": {
     "onlyBuiltDependencies": [
-      "apify-client",
       "esbuild"
     ]
   }

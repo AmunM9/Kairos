@@ -3,12 +3,12 @@ import { VideoCard } from '@kairos/types';
 const generateMockVideos = (keyword: string): VideoCard[] => {
   const vids: VideoCard[] = [];
   for (let i = 0; i < 21; i++) {
-    const p = i % 3 === 0 ? 'youtube' : i % 3 === 1 ? 'tiktok' : 'instagram';
+    const p = 'youtube';
     vids.push({
       id: `mock-${keyword}-${i}`,
       url: `https://example.com/mock-${i}`,
       platform: p,
-      contentType: p === 'tiktok' ? 'video' : p === 'youtube' ? 'video' : 'post',
+      contentType: 'video',
       title: `Mock Video about ${keyword} ${i}`,
       description: `A lovely description for ${keyword} video.`,
       thumbnailUrl: `https://picsum.photos/seed/${keyword}${i}/640/360`,

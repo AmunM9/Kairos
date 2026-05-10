@@ -5,7 +5,6 @@ import { useAppStore } from '../store/useAppStore';
 import { cn } from '../lib/cn';
 import PlatformFilter from './PlatformFilter';
 import FreshnessFilter from './FreshnessFilter';
-import LanguageFilter from './LanguageFilter';
 
 interface SearchBarProps {
   variant: 'hero' | 'compact';
@@ -63,7 +62,6 @@ const SearchBar: React.FC<SearchBarProps> = ({ variant }) => {
         <div className="flex gap-2 flex-wrap">
           <PlatformFilter isHero={isHero} />
           <FreshnessFilter isHero={isHero} />
-          <LanguageFilter isHero={isHero} />
         </div>
         
         {isHero && (

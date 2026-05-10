@@ -6,8 +6,6 @@ import { cn } from '../lib/cn';
 
 const PLATFORMS: { id: Platform; label: string }[] = [
   { id: 'youtube', label: 'YouTube' },
-  { id: 'tiktok', label: 'TikTok' },
-  { id: 'instagram', label: 'Instagram' },
 ];
 
 const PlatformFilter = ({ isHero }: { isHero: boolean }) => {

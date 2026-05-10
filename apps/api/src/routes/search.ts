@@ -7,12 +7,12 @@ const router = Router();
 
 const searchSchema = z.object({
   q: z.string().min(1).max(80),
-  platforms: z.string().optional().default('youtube,tiktok,instagram'),
+  platforms: z.string().optional().default('youtube'),
   freshness: z.enum(['today', 'week', 'month', 'year', 'all']).optional().default('all'),
   sort: z.enum(['viral', 'views', 'recent', 'engagement']).optional().default('viral'),
   videoType: z.enum(['all', 'vertical', 'horizontal']).optional().default('all'),
-  language: z.string().optional().default('all'),
   page: z.coerce.number().optional().default(0),
+  pageToken: z.string().optional(),
 });
 
 // SSE streaming endpoint — used for first-page searches
@@ -41,6 +41,7 @@ router.get('/stream', async (req, res) => {
   const platforms = query.platforms.split(',') as Platform[];
   const platformCounts: Record<string, number> = {};
   const errors: Record<string, any> = {};
+  let nextPageToken: string | undefined;
 
   await searchServiceStream(
     {
@@ -49,21 +50,24 @@ router.get('/stream', async (req, res) => {
       freshness: query.freshness,
       sort: query.sort,
       videoType: query.videoType,
-      language: query.language,
       page: 0,
+      pageToken: query.pageToken,
     },
     (platform, results, error) => {
-      if (error) {
+      if (error && error.type === 'token') {
+        nextPageToken = error.token;
+        platformCounts[platform] = results.length;
+      } else if (error) {
         errors[platform] = error;
         platformCounts[platform] = 0;
       } else {
         platformCounts[platform] = results.length;
       }
-      send({ type: 'platform', platform, results, error });
+      send({ type: 'platform', platform, results, error: error && error.type !== 'token' ? error : null });
     },
   );
 
-  send({ type: 'done', platformCounts, errors: Object.keys(errors).length > 0 ? errors : null, page: 0 });
+  send({ type: 'done', platformCounts, errors: Object.keys(errors).length > 0 ? errors : null, page: 0, nextPageToken });
   res.end();
 });
 
@@ -79,8 +83,8 @@ router.get('/', async (req, res) => {
       freshness: query.freshness,
       sort: query.sort,
       videoType: query.videoType,
-      language: query.language,
       page: query.page,
+      pageToken: query.pageToken,
     });
 
     res.json(result);

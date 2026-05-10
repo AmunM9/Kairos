@@ -3,7 +3,7 @@ import { z } from 'zod';
 
 export const searchSchema = z.object({
   q: z.string().min(1).max(80),
-  platforms: z.string().optional().default('youtube,tiktok,instagram'),
+  platforms: z.string().optional().default('youtube'),
   freshness: z.enum(['hour', 'day', 'week', 'month', 'year', 'all']).optional(),
   page: z.string().regex(/^\d+$/).transform(Number).optional().default('0'),
 });

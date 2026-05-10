@@ -12,7 +12,6 @@ interface AppState {
   freshness: Freshness;
   sort: Sort;
   videoType: VideoType;
-  language: string;
   searchState: 'idle' | 'searching' | 'results';
   searchVersion: number;
   theme: Theme;
@@ -23,7 +22,6 @@ interface AppState {
   setFreshness: (f: Freshness) => void;
   setSort: (s: Sort) => void;
   setVideoType: (t: VideoType) => void;
-  setLanguage: (l: string) => void;
   submitSearch: () => void;
   setResultsState: () => void;
   reset: () => void;
@@ -37,11 +35,10 @@ const getInitialTheme = (): Theme => {
 
 export const useAppStore = create<AppState>((set, get) => ({
   query: '',
-  platforms: ['youtube', 'tiktok', 'instagram'],
+  platforms: ['youtube'],
   freshness: 'all',
   sort: 'viral',
   videoType: 'all',
-  language: 'all',
   searchState: 'idle',
   searchVersion: 0,
   theme: getInitialTheme(),
@@ -49,20 +46,31 @@ export const useAppStore = create<AppState>((set, get) => ({
 
   setQuery: (q) => set({ query: q }),
   
-  togglePlatform: (p) => set((state) => {
-    const newPlatforms = state.platforms.includes(p)
-      ? state.platforms.filter((x) => x !== p)
-      : [...state.platforms, p];
-    
-    // Prevent deselecting all
-    if (newPlatforms.length === 0) return state;
-    return { platforms: newPlatforms };
-  }),
+  togglePlatform: (p) => {
+    set((state) => {
+      const newPlatforms = state.platforms.includes(p)
+        ? state.platforms.filter((x) => x !== p)
+        : [...state.platforms, p];
+      
+      // Prevent deselecting all
+      if (newPlatforms.length === 0) return state;
+      return { platforms: newPlatforms };
+    });
+    get().submitSearch();
+  },
 
-  setFreshness: (f) => set({ freshness: f }),
-  setSort: (s) => set({ sort: s }),
-  setVideoType: (t) => set({ videoType: t }),
-  setLanguage: (l) => set({ language: l }),
+  setFreshness: (f) => {
+    set({ freshness: f });
+    get().submitSearch();
+  },
+  setSort: (s) => {
+    set({ sort: s });
+    get().submitSearch();
+  },
+  setVideoType: (t) => {
+    set({ videoType: t });
+    get().submitSearch();
+  },
   
   submitSearch: () => {
     if (get().query.trim()) {

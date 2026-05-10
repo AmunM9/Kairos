@@ -1,5 +1,5 @@
 import { env } from '../config/env';
-import { MOCK_DATA } from '../lib/mock-data';
+import { getMockVideos } from '../lib/mock-data';
 import { searchYouTubeShorts } from '../lib/youtubeV3';
 import { Platform, VideoCard } from '@kairos/types';
 
@@ -42,10 +42,9 @@ export const searchServiceStream = async (
   onPlatformResult: (platform: Platform, results: VideoCard[], error: any | null) => void,
 ): Promise<void> => {
   if (env.APIFY_MOCK_MODE) {
-    const mockVids = MOCK_DATA[params.q.toLowerCase()] || MOCK_DATA['branding'] || Object.values(MOCK_DATA)[0];
+    const results = getMockVideos(params.q, params.page);
     await new Promise(res => setTimeout(res, 800));
-    const results = mockVids.filter(v => v.platform === 'youtube');
-    onPlatformResult('youtube', applyFiltersAndSort(results, params), null);
+    onPlatformResult('youtube', applyFiltersAndSort(results, params), { type: 'token', token: `MOCK_TOKEN_${params.page + 1}` });
     return;
   }
 
@@ -63,9 +62,8 @@ export const searchServiceStream = async (
     const errMsg = String(err?.message || '');
     if (errMsg.includes('403') || errMsg.includes('quota')) {
       console.warn(`[KAIROS_API] Quota limit hit! Falling back to premium Mock data.`);
-      const mockVids = MOCK_DATA[params.q.toLowerCase()] || MOCK_DATA['branding'] || Object.values(MOCK_DATA)[0];
-      const results = mockVids.filter(v => v.platform === 'youtube');
-      onPlatformResult('youtube', applyFiltersAndSort(results, params), { type: 'token', token: 'MOCK_TOKEN_1' });
+      const results = getMockVideos(params.q, params.page);
+      onPlatformResult('youtube', applyFiltersAndSort(results, params), { type: 'token', token: `MOCK_TOKEN_${params.page + 1}` });
     } else {
       onPlatformResult('youtube', [], { type: 'unknown', message: 'Failed to fetch youtube' });
     }
@@ -74,16 +72,16 @@ export const searchServiceStream = async (
 
 export const searchService = async (params: SearchParams) => {
   if (env.APIFY_MOCK_MODE) {
-    const mockVids = MOCK_DATA[params.q.toLowerCase()] || MOCK_DATA['branding'] || Object.values(MOCK_DATA)[0];
-    const results = mockVids.filter(v => v.platform === 'youtube');
+    const results = getMockVideos(params.q, params.page);
+    const nextToken = params.page < 10 ? `MOCK_TOKEN_${params.page + 1}` : null;
     await new Promise(res => setTimeout(res, 800));
     return {
       results: applyFiltersAndSort(results, params),
       errors: null,
       platformCounts: { youtube: results.length },
-      hasMore: false,
+      hasMore: !!nextToken,
       page: params.page,
-      nextPageToken: null,
+      nextPageToken: nextToken,
     };
   }
 
@@ -110,16 +108,15 @@ export const searchService = async (params: SearchParams) => {
     const errMsg = String(err?.message || '');
     if (errMsg.includes('403') || errMsg.includes('quota')) {
       console.warn(`[KAIROS_API] Quota limit hit during page pagination! Falling back to premium Mock data.`);
-      const mockVids = MOCK_DATA[params.q.toLowerCase()] || MOCK_DATA['branding'] || Object.values(MOCK_DATA)[0];
-      const results = mockVids.filter(v => v.platform === 'youtube');
-      const fakeNextPageToken = params.page < 5 ? `MOCK_TOKEN_${params.page + 1}` : null;
+      const results = getMockVideos(params.q, params.page);
+      const nextToken = params.page < 10 ? `MOCK_TOKEN_${params.page + 1}` : null;
       return {
         results: applyFiltersAndSort(results, params),
         errors: null,
         platformCounts: { youtube: results.length },
-        hasMore: !!fakeNextPageToken,
+        hasMore: !!nextToken,
         page: params.page,
-        nextPageToken: fakeNextPageToken,
+        nextPageToken: nextToken,
       };
     }
     return {

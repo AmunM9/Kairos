@@ -1,13 +1,18 @@
 import React from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Sparkles, TrendingUp, Zap } from 'lucide-react';
 import SearchBar from '../components/SearchBar';
+import VideoGrid from '../components/VideoGrid';
+import VideoDetailPanel from '../components/VideoDetailPanel';
 import { useAppStore } from '../store/useAppStore';
 
 const Landing = () => {
+  const searchState = useAppStore(state => state.searchState);
+  const userName = useAppStore(state => state.userName);
   const setQuery = useAppStore(state => state.setQuery);
   const submitSearch = useAppStore(state => state.submitSearch);
-  const userName = useAppStore(state => state.userName);
+  const selectedVideo = useAppStore(state => state.selectedVideo);
+  const selectVideo = useAppStore(state => state.selectVideo);
 
   const handleSuggestionClick = (topic: string) => {
     setQuery(topic);
@@ -39,97 +44,126 @@ const Landing = () => {
     }
   ];
 
+  const isIdle = searchState === 'idle';
+
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 15 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-      className="flex flex-col items-center w-full max-w-4xl px-6 pt-16 pb-24 text-center space-y-12"
-    >
-      {/* Premium Badge */}
+    <div className="w-full flex flex-col items-center min-h-full pb-20 px-6">
+      {/* Centering Wrapper that smoothly transitions padding/margins */}
       <motion.div
-        initial={{ opacity: 0, scale: 0.9 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ delay: 0.1, duration: 0.4 }}
-        className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-white/10 bg-white/5 text-muted-foreground text-[10px] font-semibold tracking-[0.18em] uppercase backdrop-blur-md"
+        layout
+        transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+        className={`w-full flex flex-col items-center ${
+          isIdle ? 'pt-[12vh] space-y-12' : 'pt-12 space-y-8'
+        }`}
       >
-        <Sparkles size={11} className="animate-pulse text-foreground/80" />
-        LA CIENCIA DETRÁS DE LOS VIDEOS VIRALES
-      </motion.div>
-
-      {/* Hero Headline */}
-      <div className="space-y-6 max-w-3xl">
-        <motion.h1 
-          className="text-center text-4xl font-medium tracking-tighter text-foreground sm:text-5xl md:text-6xl lg:text-[76px] lg:leading-[1.05]"
-          style={{ fontFamily: "'Inter', ui-sans-serif, system-ui, sans-serif" }}
-          initial={{ opacity: 0, y: 15 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.15 }}
+        {/* Premium Badge */}
+        <motion.div
+          layout
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-white/10 bg-white/5 text-muted-foreground text-[10px] font-semibold tracking-[0.18em] uppercase backdrop-blur-md"
         >
-          Crea con ventaja{userName ? `, ${userName}` : ""}
-        </motion.h1>
-        
-        <motion.p
-          className="mx-auto mt-6 max-w-xl text-center text-base text-muted-foreground sm:text-lg font-light leading-relaxed"
-          initial={{ opacity: 0, y: 15 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
+          <Sparkles size={11} className="animate-pulse text-foreground/80" />
+          LA CIENCIA DETRÁS DE LOS VIDEOS VIRALES
+        </motion.div>
+
+        {/* Hero Headline */}
+        <motion.div layout className="space-y-6 max-w-3xl text-center">
+          <motion.h1
+            layout
+            className="text-center text-4xl font-medium tracking-tighter text-foreground sm:text-5xl md:text-6xl lg:text-[76px] lg:leading-[1.05]"
+            style={{ fontFamily: "'Inter', ui-sans-serif, system-ui, sans-serif" }}
+          >
+            Crea con ventaja{userName ? `, ${userName}` : ""}
+          </motion.h1>
+
+          <motion.p
+            layout
+            className="mx-auto mt-6 max-w-xl text-center text-base text-muted-foreground sm:text-lg font-light leading-relaxed"
+          >
+            Busca referencias virales y encuentra la estructura de contenido que funciona.
+          </motion.p>
+        </motion.div>
+
+        {/* Search Bar Container */}
+        <motion.div
+          layout
+          className="w-full max-w-3xl relative z-10"
         >
-          Busca referencias virales y encuentra la estructura de contenido que funciona.
-        </motion.p>
-      </div>
+          <div className="absolute -inset-1 rounded-[36px] bg-[var(--gradient-brand)] opacity-20 blur-3xl animate-glow-pulse" />
+          <SearchBar variant="hero" />
+        </motion.div>
 
-      {/* Search Bar Container */}
-      <motion.div
-        className="w-full max-w-3xl relative z-10"
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.25, duration: 0.5 }}
-      >
-        <div className="absolute -inset-1 rounded-[36px] bg-[var(--gradient-brand)] opacity-20 blur-3xl animate-glow-pulse" />
-        <SearchBar variant="hero" />
-      </motion.div>
-
-      {/* Suggestions / Tags */}
-      <motion.div
-        className="space-y-4"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.35 }}
-      >
-        <p className="text-[11px] font-semibold tracking-[0.18em] text-muted-foreground/80 uppercase">🎯 IDEAS PARA EMPEZAR A BUSCAR:</p>
-        <div className="flex flex-wrap justify-center gap-2.5 max-w-2xl">
-          {suggestions.map((s, idx) => (
-            <button
-              key={idx}
-              onClick={() => handleSuggestionClick(s.text)}
-              className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-xs font-light text-foreground/90 transition-colors hover:bg-white/10 cursor-pointer"
+        {/* Suggestions & Highlights - Animate Presence */}
+        <AnimatePresence>
+          {isIdle && (
+            <motion.div
+              key="landing-suggestions"
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              transition={{ duration: 0.4 }}
+              className="w-full flex flex-col items-center space-y-12"
             >
-              <span>{s.icon}</span>
-              <span>{s.text}</span>
-            </button>
-          ))}
-        </div>
+              {/* Suggestions */}
+              <div className="flex flex-col items-center space-y-4">
+                <p className="text-[11px] font-semibold tracking-[0.18em] text-muted-foreground/80 uppercase">
+                  🎯 IDEAS PARA EMPEZAR A BUSCAR:
+                </p>
+                <div className="flex flex-wrap justify-center gap-2.5 max-w-2xl">
+                  {suggestions.map((s, idx) => (
+                    <button
+                      key={idx}
+                      onClick={() => handleSuggestionClick(s.text)}
+                      className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-xs font-light text-foreground/90 transition-colors hover:bg-white/10 cursor-pointer"
+                    >
+                      <span>{s.icon}</span>
+                      <span>{s.text}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Highlights */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full max-w-3xl pt-12 border-t border-white/5">
+                {highlights.map((h, idx) => (
+                  <div
+                    key={idx}
+                    className="flex flex-col items-center md:items-start text-center md:text-left space-y-3 p-5 rounded-3xl hover:bg-white/[0.02] transition-colors duration-300 border border-transparent hover:border-white/5"
+                  >
+                    <div className="p-3 rounded-2xl border border-white/10 bg-white/[0.04] backdrop-blur-xl">
+                      {h.icon}
+                    </div>
+                    <h4 className="text-base font-medium tracking-tight text-foreground">{h.title}</h4>
+                    <p className="text-xs text-muted-foreground leading-relaxed font-light">{h.desc}</p>
+                  </div>
+                ))}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </motion.div>
 
-      {/* Premium Value Props / Highlights */}
-      <motion.div
-        className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full max-w-3xl pt-12 border-t border-white/5"
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.45, duration: 0.6 }}
-      >
-        {highlights.map((h, idx) => (
-          <div key={idx} className="flex flex-col items-center md:items-start text-center md:text-left space-y-3 p-5 rounded-3xl hover:bg-white/[0.02] transition-colors duration-300 border border-transparent hover:border-white/5">
-            <div className="p-3 rounded-2xl border border-white/10 bg-white/[0.04] backdrop-blur-xl">
-              {h.icon}
-            </div>
-            <h4 className="text-base font-medium tracking-tight text-foreground">{h.title}</h4>
-            <p className="text-xs text-muted-foreground leading-relaxed font-light">{h.desc}</p>
-          </div>
-        ))}
-      </motion.div>
-    </motion.div>
+      {/* Video Grid Results - Fade in when not idle */}
+      <AnimatePresence>
+        {!isIdle && (
+          <motion.div
+            key="results-grid"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0 }}
+            transition={{ delay: 0.3, duration: 0.6 }}
+            className="w-full max-w-7xl mx-auto py-12 flex-1"
+          >
+            <VideoGrid />
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {selectedVideo && (
+        <VideoDetailPanel video={selectedVideo} onClose={() => selectVideo(null)} />
+      )}
+    </div>
   );
 };
 

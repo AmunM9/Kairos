@@ -82,12 +82,8 @@ function App() {
       <main className="flex-1 flex flex-col pt-16 relative">
         {currentView === 'about' ? (
           <About />
-        ) : searchState === 'idle' ? (
-          <div className="flex-1 flex items-center justify-center">
-            <Landing />
-          </div>
         ) : (
-          <Results />
+          <Landing />
         )}
       </main>
 

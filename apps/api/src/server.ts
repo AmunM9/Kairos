@@ -6,6 +6,7 @@ import { env } from './config/env';
 import healthRouter from './routes/health';
 import searchRouter from './routes/search';
 import usageRouter from './routes/usage';
+import analysisRouter from './routes/analysis';
 
 // Middlewares
 import { errorHandler } from './middleware/errorHandler';
@@ -22,6 +23,7 @@ app.use(express.json());
 app.use('/api/health', healthRouter);
 app.use('/api/search', searchRouter);
 app.use('/api/usage', usageRouter);
+app.use('/api/analysis', analysisRouter);
 
 // Error Handler
 app.use(errorHandler);

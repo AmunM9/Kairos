@@ -13,4 +13,5 @@ export const env = {
   NODE_ENV: process.env.NODE_ENV || 'development',
   CACHE_TTL_SECONDS: parseInt(process.env.CACHE_TTL_SECONDS || '86400', 10),
   RATE_LIMIT_PER_HOUR: parseInt(process.env.RATE_LIMIT_PER_HOUR || '10', 10),
+  OPENAI_API_KEY: process.env.OPENAI_API_KEY || '',
 };

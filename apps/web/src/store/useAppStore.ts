@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { Platform } from '@kairos/types';
+import { Platform, VideoCard } from '@kairos/types';
 import { Theme, toggleThemeClass } from '../lib/theme';
 
 export type Freshness = 'today' | 'week' | 'month' | 'year' | 'all';
@@ -16,6 +16,7 @@ interface AppState {
   searchState: 'idle' | 'searching' | 'results';
   searchVersion: number;
   theme: Theme;
+  selectedVideo: VideoCard | null;
 
   setQuery: (q: string) => void;
   togglePlatform: (p: Platform) => void;
@@ -27,6 +28,7 @@ interface AppState {
   setResultsState: () => void;
   reset: () => void;
   setTheme: (t: Theme) => void;
+  selectVideo: (v: VideoCard | null) => void;
 }
 
 const getInitialTheme = (): Theme => {
@@ -43,6 +45,7 @@ export const useAppStore = create<AppState>((set, get) => ({
   searchState: 'idle',
   searchVersion: 0,
   theme: getInitialTheme(),
+  selectedVideo: null,
 
   setQuery: (q) => set({ query: q }),
   
@@ -76,4 +79,5 @@ export const useAppStore = create<AppState>((set, get) => ({
     toggleThemeClass(t);
     set({ theme: t });
   },
+  selectVideo: (v) => set({ selectedVideo: v }),
 }));

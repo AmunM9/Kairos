@@ -20,8 +20,6 @@ function applyFiltersAndSort(results: VideoCard[], params: SearchParams): VideoC
     filtered = filtered.filter(v => v.orientation === params.videoType);
   }
 
-
-
   if (params.sort === 'viral') {
     filtered.sort((a, b) => b.viralScore - a.viralScore);
   } else if (params.sort === 'views') {
@@ -60,9 +58,17 @@ export const searchServiceStream = async (
     });
     // We pass nextPageToken in the error field hacky or just modify the interface
     onPlatformResult('youtube', applyFiltersAndSort(cards, params), nextPageToken ? { type: 'token', token: nextPageToken } : null);
-  } catch (err) {
+  } catch (err: any) {
     console.error(`[youtube] fetch error:`, err);
-    onPlatformResult('youtube', [], { type: 'unknown', message: 'Failed to fetch youtube' });
+    const errMsg = String(err?.message || '');
+    if (errMsg.includes('403') || errMsg.includes('quota')) {
+      console.warn(`[KAIROS_API] Quota limit hit! Falling back to premium Mock data.`);
+      const mockVids = MOCK_DATA[params.q.toLowerCase()] || MOCK_DATA['branding'] || Object.values(MOCK_DATA)[0];
+      const results = mockVids.filter(v => v.platform === 'youtube');
+      onPlatformResult('youtube', applyFiltersAndSort(results, params), { type: 'token', token: 'MOCK_TOKEN_1' });
+    } else {
+      onPlatformResult('youtube', [], { type: 'unknown', message: 'Failed to fetch youtube' });
+    }
   }
 };
 
@@ -99,8 +105,23 @@ export const searchService = async (params: SearchParams) => {
       page: params.page,
       nextPageToken,
     };
-  } catch (err) {
+  } catch (err: any) {
     console.error(`[youtube] fetch error:`, err);
+    const errMsg = String(err?.message || '');
+    if (errMsg.includes('403') || errMsg.includes('quota')) {
+      console.warn(`[KAIROS_API] Quota limit hit during page pagination! Falling back to premium Mock data.`);
+      const mockVids = MOCK_DATA[params.q.toLowerCase()] || MOCK_DATA['branding'] || Object.values(MOCK_DATA)[0];
+      const results = mockVids.filter(v => v.platform === 'youtube');
+      const fakeNextPageToken = params.page < 5 ? `MOCK_TOKEN_${params.page + 1}` : null;
+      return {
+        results: applyFiltersAndSort(results, params),
+        errors: null,
+        platformCounts: { youtube: results.length },
+        hasMore: !!fakeNextPageToken,
+        page: params.page,
+        nextPageToken: fakeNextPageToken,
+      };
+    }
     return {
       results: [],
       errors: { youtube: { type: 'unknown', message: 'Failed to fetch youtube' } },

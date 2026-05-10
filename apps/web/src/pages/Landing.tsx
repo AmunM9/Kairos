@@ -53,37 +53,45 @@ const Landing = () => {
         layout
         transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
         className={`w-full flex flex-col items-center ${
-          isIdle ? 'pt-[12vh] space-y-12' : 'pt-12 space-y-8'
+          isIdle ? 'pt-[12vh] space-y-12' : 'pt-4 space-y-0'
         }`}
       >
-        {/* Premium Badge */}
-        <motion.div
-          layout
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-white/10 bg-white/5 text-muted-foreground text-[10px] font-semibold tracking-[0.18em] uppercase backdrop-blur-md"
-        >
-          <Sparkles size={11} className="animate-pulse text-foreground/80" />
-          LA CIENCIA DETRÁS DE LOS VIDEOS VIRALES
-        </motion.div>
+        <AnimatePresence>
+          {isIdle && (
+            <motion.div
+              key="hero-header-content"
+              initial={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0, overflow: 'hidden' }}
+              transition={{ duration: 0.4 }}
+              className="flex flex-col items-center space-y-12 w-full"
+            >
+              {/* Premium Badge */}
+              <motion.div
+                layout
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-white/10 bg-white/5 text-muted-foreground text-[10px] font-semibold tracking-[0.18em] uppercase backdrop-blur-md"
+              >
+                <Sparkles size={11} className="animate-pulse text-foreground/80" />
+                LA CIENCIA DETRÁS DE LOS VIDEOS VIRALES
+              </motion.div>
 
-        {/* Hero Headline */}
-        <motion.div layout className="space-y-6 max-w-3xl text-center">
-          <motion.h1
-            layout
-            className="text-center text-4xl font-medium tracking-tighter text-foreground sm:text-5xl md:text-6xl lg:text-[76px] lg:leading-[1.05]"
-            style={{ fontFamily: "'Inter', ui-sans-serif, system-ui, sans-serif" }}
-          >
-            Crea con ventaja{userName ? `, ${userName}` : ""}
-          </motion.h1>
+              {/* Hero Headline */}
+              <div className="space-y-6 max-w-3xl text-center">
+                <h1
+                  className="text-center text-4xl font-medium tracking-tighter text-foreground sm:text-5xl md:text-6xl lg:text-[76px] lg:leading-[1.05]"
+                  style={{ fontFamily: "'Inter', ui-sans-serif, system-ui, sans-serif" }}
+                >
+                  Crea con ventaja{userName ? `, ${userName}` : ""}
+                </h1>
 
-          <motion.p
-            layout
-            className="mx-auto mt-6 max-w-xl text-center text-base text-muted-foreground sm:text-lg font-light leading-relaxed"
-          >
-            Busca referencias virales y encuentra la estructura de contenido que funciona.
-          </motion.p>
-        </motion.div>
+                <p className="mx-auto mt-6 max-w-xl text-center text-base text-muted-foreground sm:text-lg font-light leading-relaxed">
+                  Busca referencias virales y encuentra la estructura de contenido que funciona.
+                </p>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {/* Search Bar Container */}
         <motion.div
@@ -103,7 +111,7 @@ const Landing = () => {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
               transition={{ duration: 0.4 }}
-              className="w-full flex flex-col items-center space-y-12"
+              className="w-full flex flex-col items-center space-y-12 pt-12"
             >
               {/* Suggestions */}
               <div className="flex flex-col items-center space-y-4">

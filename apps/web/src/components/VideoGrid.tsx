@@ -44,18 +44,12 @@ const VideoGrid = () => {
     return cols;
   }, [results, colCount]);
 
-  const fetchStateRef = useRef({ isFetchingNextPage, hasMore, isStreaming });
-  useEffect(() => {
-    fetchStateRef.current = { isFetchingNextPage, hasMore, isStreaming };
-  }, [isFetchingNextPage, hasMore, isStreaming]);
-
   // Trigger fetchNextPage when the sentinel scrolls into view
   useEffect(() => {
     const sentinel = sentinelRef.current;
     if (!sentinel) return;
     const observer = new IntersectionObserver(
       (entries) => {
-        const { isFetchingNextPage, hasMore, isStreaming } = fetchStateRef.current;
         if (entries[0].isIntersecting && hasMore && !isStreaming && !isFetchingNextPage) {
           fetchNextPage();
         }
@@ -64,7 +58,7 @@ const VideoGrid = () => {
     );
     observer.observe(sentinel);
     return () => observer.disconnect();
-  }, [fetchNextPage]);
+  }, [fetchNextPage, hasMore, isStreaming, isFetchingNextPage]);
 
   const noResults = !isStreaming && results.length === 0;
   const fullSkeleton = isStreaming && results.length === 0;

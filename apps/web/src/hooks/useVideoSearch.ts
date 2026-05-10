@@ -14,6 +14,7 @@ interface DoneEvent {
   platformCounts: Record<string, number>;
   errors: Record<string, any> | null;
   page: number;
+  nextPageToken?: string;
 }
 
 export interface VideoSearchResult {
@@ -39,10 +40,36 @@ export function useVideoSearch(): VideoSearchResult {
 
   const [resultPages, setResultPages] = useState<VideoCard[][]>([]);
   const [loadingPlatforms, setLoadingPlatforms] = useState<Set<string>>(new Set());
-  const [isStreaming, setIsStreaming] = useState(false);
-  const [hasMore, setHasMore] = useState(false);
-  const [page, setPage] = useState(0);
+  const [isStreaming, setIsStreamingState] = useState(false);
+  const [hasMore, setHasMoreState] = useState(false);
+  const [page, setPageState] = useState(0);
   const [errors, setErrors] = useState<Record<string, any> | null>(null);
+  const [isFetchingNextPage, setIsFetchingNextPageState] = useState(false);
+
+  // Sync refs to make fetchNextPage completely stable and prevent observer double-triggering
+  const isStreamingRef = useRef(false);
+  const setIsStreaming = useCallback((val: boolean) => {
+    isStreamingRef.current = val;
+    setIsStreamingState(val);
+  }, []);
+
+  const hasMoreRef = useRef(false);
+  const setHasMore = useCallback((val: boolean) => {
+    hasMoreRef.current = val;
+    setHasMoreState(val);
+  }, []);
+
+  const pageRef = useRef(0);
+  const setPage = useCallback((val: number) => {
+    pageRef.current = val;
+    setPageState(val);
+  }, []);
+
+  const isFetchingRef = useRef(false);
+  const setIsFetchingNextPage = useCallback((val: boolean) => {
+    isFetchingRef.current = val;
+    setIsFetchingNextPageState(val);
+  }, []);
 
   const [pageToken, setPageTokenState] = useState<string | null>(null);
   const pageTokenRef = useRef<string | null>(null);
@@ -52,6 +79,10 @@ export function useVideoSearch(): VideoSearchResult {
   }, []);
 
   const results = useMemo(() => resultPages.flat(), [resultPages]);
+  const resultsRef = useRef<VideoCard[]>([]);
+  useEffect(() => {
+    resultsRef.current = results;
+  }, [results]);
 
   const abortRef = useRef<AbortController | null>(null);
   const queryRef = useRef(query);
@@ -179,12 +210,10 @@ export function useVideoSearch(): VideoSearchResult {
     return sp;
   }, [query, platforms, freshness, sort, videoType]);
 
-  const [isFetchingNextPage, setIsFetchingNextPage] = useState(false);
-
   const fetchNextPage = useCallback(async () => {
-    if (isStreaming || isFetchingNextPage) return;
+    if (isStreamingRef.current || isFetchingRef.current || !hasMoreRef.current) return;
     setIsFetchingNextPage(true);
-    const nextPage = page + 1;
+    const nextPage = pageRef.current + 1;
     const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
 
     try {
@@ -195,7 +224,14 @@ export function useVideoSearch(): VideoSearchResult {
         return;
       }
       const data = await res.json();
-      setResultPages(prev => [...prev, data.results]);
+      
+      // Filter out any potential duplicate videos that might already exist in resultPages
+      const existingIds = new Set(resultsRef.current.map(v => v.id));
+      const uniqueResults = (data.results || []).filter((v: VideoCard) => !existingIds.has(v.id));
+
+      if (uniqueResults.length > 0) {
+        setResultPages(prev => [...prev, uniqueResults]);
+      }
       setHasMore(data.hasMore);
       setPageToken(data.nextPageToken || null);
       setPage(nextPage);
@@ -204,7 +240,7 @@ export function useVideoSearch(): VideoSearchResult {
     } finally {
       setIsFetchingNextPage(false);
     }
-  }, [page, isStreaming, isFetchingNextPage, buildParams, setPageToken]);
+  }, [buildParams, setPageToken, setIsFetchingNextPage, setPage, setHasMore]);
 
   return { resultPages, results, loadingPlatforms, isStreaming, hasMore, page, errors, fetchNextPage, isFetchingNextPage };
 }

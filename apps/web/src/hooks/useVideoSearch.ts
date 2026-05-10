@@ -25,6 +25,7 @@ export interface VideoSearchResult {
   page: number;
   errors: Record<string, any> | null;
   fetchNextPage: () => void;
+  isFetchingNextPage: boolean;
 }
 
 export function useVideoSearch(): VideoSearchResult {

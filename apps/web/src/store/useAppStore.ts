@@ -16,6 +16,8 @@ interface AppState {
   searchVersion: number;
   theme: Theme;
   selectedVideo: VideoCard | null;
+  currentView: 'search' | 'about';
+  userName: string;
 
   setQuery: (q: string) => void;
   togglePlatform: (p: Platform) => void;
@@ -27,6 +29,8 @@ interface AppState {
   reset: () => void;
   setTheme: (t: Theme) => void;
   selectVideo: (v: VideoCard | null) => void;
+  setView: (v: 'search' | 'about') => void;
+  setUserName: (name: string) => void;
 }
 
 const getInitialTheme = (): Theme => {
@@ -43,6 +47,8 @@ export const useAppStore = create<AppState>((set, get) => ({
   searchVersion: 0,
   theme: getInitialTheme(),
   selectedVideo: null,
+  currentView: 'search',
+  userName: '',
 
   setQuery: (q) => set({ query: q }),
   
@@ -74,13 +80,13 @@ export const useAppStore = create<AppState>((set, get) => ({
   
   submitSearch: () => {
     if (get().query.trim()) {
-      set((s) => ({ searchState: 'searching', searchVersion: s.searchVersion + 1 }));
+      set((s) => ({ searchState: 'searching', searchVersion: s.searchVersion + 1, currentView: 'search' }));
     }
   },
   
   setResultsState: () => set({ searchState: 'results' }),
 
-  reset: () => set({ searchState: 'idle', query: '' }),
+  reset: () => set({ searchState: 'idle', query: '', currentView: 'search' }),
 
   setTheme: (t) => {
     localStorage.setItem('kairos-theme', t);
@@ -88,4 +94,6 @@ export const useAppStore = create<AppState>((set, get) => ({
     set({ theme: t });
   },
   selectVideo: (v) => set({ selectedVideo: v }),
+  setView: (v) => set({ currentView: v }),
+  setUserName: (name) => set({ userName: name }),
 }));

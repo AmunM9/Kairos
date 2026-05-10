@@ -1,12 +1,13 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Sparkles, Play, Target, TrendingUp, Zap } from 'lucide-react';
+import { Sparkles, TrendingUp, Zap } from 'lucide-react';
 import SearchBar from '../components/SearchBar';
 import { useAppStore } from '../store/useAppStore';
 
 const Landing = () => {
   const setQuery = useAppStore(state => state.setQuery);
   const submitSearch = useAppStore(state => state.submitSearch);
+  const userName = useAppStore(state => state.userName);
 
   const handleSuggestionClick = (topic: string) => {
     setQuery(topic);
@@ -22,17 +23,17 @@ const Landing = () => {
 
   const highlights = [
     {
-      icon: <Sparkles className="text-accent" size={18} />,
+      icon: <Sparkles size={18} className="text-foreground/90" />,
       title: "Decodifica Hooks",
       desc: "Desglosamos los primeros 3 segundos clave que atrapan la atención."
     },
     {
-      icon: <TrendingUp className="text-accent" size={18} />,
+      icon: <TrendingUp size={18} className="text-foreground/90" />,
       title: "Líneas de Tiempo",
       desc: "Estructuras de guion interactivas listas para ser replicadas."
     },
     {
-      icon: <Zap className="text-accent" size={18} />,
+      icon: <Zap size={18} className="text-foreground/90" />,
       title: "Títulos Adaptables",
       desc: "Fórmulas de copiado rápido diseñadas para maximizar el CTR."
     }
@@ -42,41 +43,39 @@ const Landing = () => {
     <motion.div
       initial={{ opacity: 0, y: 15 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.6, ease: 'easeOut' }}
-      className="flex flex-col items-center w-full max-w-4xl px-6 pt-10 pb-24 text-center space-y-10"
+      transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+      className="flex flex-col items-center w-full max-w-4xl px-6 pt-16 pb-24 text-center space-y-12"
     >
       {/* Premium Badge */}
       <motion.div
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ delay: 0.1, duration: 0.4 }}
-        className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-accent/10 border border-accent/20 text-accent text-[11px] font-bold tracking-widest uppercase"
+        className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-white/10 bg-white/5 text-muted-foreground text-[10px] font-semibold tracking-[0.18em] uppercase backdrop-blur-md"
       >
-        <Sparkles size={12} className="animate-pulse" />
-        La Ciencia Detrás de los Videos Virales
+        <Sparkles size={11} className="animate-pulse text-foreground/80" />
+        LA CIENCIA DETRÁS DE LOS VIDEOS VIRALES
       </motion.div>
 
       {/* Hero Headline */}
-      <div className="space-y-4 max-w-3xl">
-        <motion.h2 
-          className="font-display text-4xl sm:text-5xl md:text-6xl font-black text-text-primary tracking-[-0.03em] leading-[1.1] md:leading-[1.05]"
+      <div className="space-y-6 max-w-3xl">
+        <motion.h1 
+          className="text-center text-4xl font-medium tracking-tighter text-foreground sm:text-5xl md:text-6xl lg:text-[76px] lg:leading-[1.05]"
+          style={{ fontFamily: "'Inter', ui-sans-serif, system-ui, sans-serif" }}
           initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.15 }}
         >
-          Encuentra la Estructura de tu Siguiente{' '}
-          <span className="bg-gradient-to-r from-accent via-accent/80 to-accent bg-clip-text text-transparent bg-[length:200%_auto] animate-gradient">
-            Video Viral
-          </span>
-        </motion.h2>
+          Crea con ventaja{userName ? `, ${userName}` : ""}
+        </motion.h1>
         
         <motion.p
-          className="text-base sm:text-lg text-text-secondary max-w-2xl mx-auto font-normal leading-relaxed"
+          className="mx-auto mt-6 max-w-xl text-center text-base text-muted-foreground sm:text-lg font-light leading-relaxed"
           initial={{ opacity: 0, y: 15 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.2 }}
         >
-          Desglosamos la retención, hooks y guiones de los Shorts más exitosos de tu nicho. Busca un tema, descubre el patrón exacto y replícalo al instante.
+          Busca referencias virales y encuentra la estructura de contenido que funciona.
         </motion.p>
       </div>
 
@@ -87,24 +86,24 @@ const Landing = () => {
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.25, duration: 0.5 }}
       >
-        <div className="absolute -inset-1.5 bg-gradient-to-r from-accent/10 to-accent/15 rounded-[32px] blur-xl opacity-70 group-hover:opacity-100 transition duration-1000 group-hover:duration-200" />
+        <div className="absolute -inset-1 rounded-[36px] bg-[var(--gradient-brand)] opacity-20 blur-3xl animate-glow-pulse" />
         <SearchBar variant="hero" />
       </motion.div>
 
       {/* Suggestions / Tags */}
       <motion.div
-        className="space-y-3"
+        className="space-y-4"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.35 }}
       >
-        <p className="text-xs text-text-tertiary font-bold uppercase tracking-wider">🎯 Ideas para empezar a buscar:</p>
-        <div className="flex flex-wrap justify-center gap-2 max-w-2xl">
+        <p className="text-[11px] font-semibold tracking-[0.18em] text-muted-foreground/80 uppercase">🎯 IDEAS PARA EMPEZAR A BUSCAR:</p>
+        <div className="flex flex-wrap justify-center gap-2.5 max-w-2xl">
           {suggestions.map((s, idx) => (
             <button
               key={idx}
               onClick={() => handleSuggestionClick(s.text)}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-bg-secondary hover:bg-bg-elevated border border-border-subtle hover:border-text-tertiary text-xs text-text-secondary hover:text-text-primary transition-all duration-200 cursor-pointer"
+              className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-2 text-xs font-light text-foreground/90 transition-colors hover:bg-white/10 cursor-pointer"
             >
               <span>{s.icon}</span>
               <span>{s.text}</span>
@@ -115,18 +114,18 @@ const Landing = () => {
 
       {/* Premium Value Props / Highlights */}
       <motion.div
-        className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full max-w-3xl pt-10 border-t border-border-subtle"
+        className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full max-w-3xl pt-12 border-t border-white/5"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.45, duration: 0.6 }}
       >
         {highlights.map((h, idx) => (
-          <div key={idx} className="flex flex-col items-center md:items-start text-center md:text-left space-y-2 p-4 rounded-2xl hover:bg-bg-secondary/30 transition-colors duration-300">
-            <div className="p-2.5 rounded-xl bg-bg-secondary border border-border-subtle">
+          <div key={idx} className="flex flex-col items-center md:items-start text-center md:text-left space-y-3 p-5 rounded-3xl hover:bg-white/[0.02] transition-colors duration-300 border border-transparent hover:border-white/5">
+            <div className="p-3 rounded-2xl border border-white/10 bg-white/[0.04] backdrop-blur-xl">
               {h.icon}
             </div>
-            <h4 className="text-sm font-bold text-text-primary">{h.title}</h4>
-            <p className="text-xs text-text-tertiary leading-relaxed">{h.desc}</p>
+            <h4 className="text-base font-medium tracking-tight text-foreground">{h.title}</h4>
+            <p className="text-xs text-muted-foreground leading-relaxed font-light">{h.desc}</p>
           </div>
         ))}
       </motion.div>

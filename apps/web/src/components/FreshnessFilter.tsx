@@ -27,7 +27,7 @@ const FreshnessFilter = ({ isHero }: { isHero: boolean }) => {
     return () => document.removeEventListener('mousedown', handleClick);
   }, []);
 
-  const activeLabel = FRESHNESS_OPTS.find(o => o.id === freshness)?.label || 'Recencia';
+  const activeLabel = FRESHNESS_OPTS.find(o => o.id === freshness)?.label || 'Fecha de Lanzamiento';
 
   return (
     <div className="relative" ref={ref}>
@@ -39,7 +39,7 @@ const FreshnessFilter = ({ isHero }: { isHero: boolean }) => {
           isHero ? "px-4 py-1.5 text-sm" : "px-3 py-1 text-xs"
         )}
       >
-        <span>{activeLabel === 'Cualquier fecha' ? 'Recencia' : activeLabel}</span>
+        <span>{activeLabel === 'Cualquier fecha' ? 'Fecha de Lanzamiento' : activeLabel}</span>
         <ChevronDown size={14} className={cn("transition-transform", open && "rotate-180")} />
       </button>
 

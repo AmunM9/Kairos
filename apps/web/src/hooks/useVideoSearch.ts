@@ -14,6 +14,7 @@ interface DoneEvent {
   platformCounts: Record<string, number>;
   errors: Record<string, any> | null;
   page: number;
+  nextPageToken?: string;
 }
 
 export interface VideoSearchResult {
@@ -25,6 +26,7 @@ export interface VideoSearchResult {
   page: number;
   errors: Record<string, any> | null;
   fetchNextPage: () => void;
+  isFetchingNextPage: boolean;
 }
 
 export function useVideoSearch(): VideoSearchResult {
@@ -33,18 +35,54 @@ export function useVideoSearch(): VideoSearchResult {
   const freshness = useAppStore(state => state.freshness);
   const sort = useAppStore(state => state.sort);
   const videoType = useAppStore(state => state.videoType);
-  const language = useAppStore(state => state.language);
   const searchVersion = useAppStore(state => state.searchVersion);
   const setResultsState = useAppStore(state => state.setResultsState);
 
   const [resultPages, setResultPages] = useState<VideoCard[][]>([]);
   const [loadingPlatforms, setLoadingPlatforms] = useState<Set<string>>(new Set());
-  const [isStreaming, setIsStreaming] = useState(false);
-  const [hasMore, setHasMore] = useState(false);
-  const [page, setPage] = useState(0);
+  const [isStreaming, setIsStreamingState] = useState(false);
+  const [hasMore, setHasMoreState] = useState(false);
+  const [page, setPageState] = useState(0);
   const [errors, setErrors] = useState<Record<string, any> | null>(null);
+  const [isFetchingNextPage, setIsFetchingNextPageState] = useState(false);
+
+  // Sync refs to make fetchNextPage completely stable and prevent observer double-triggering
+  const isStreamingRef = useRef(false);
+  const setIsStreaming = useCallback((val: boolean) => {
+    isStreamingRef.current = val;
+    setIsStreamingState(val);
+  }, []);
+
+  const hasMoreRef = useRef(false);
+  const setHasMore = useCallback((val: boolean) => {
+    hasMoreRef.current = val;
+    setHasMoreState(val);
+  }, []);
+
+  const pageRef = useRef(0);
+  const setPage = useCallback((val: number) => {
+    pageRef.current = val;
+    setPageState(val);
+  }, []);
+
+  const isFetchingRef = useRef(false);
+  const setIsFetchingNextPage = useCallback((val: boolean) => {
+    isFetchingRef.current = val;
+    setIsFetchingNextPageState(val);
+  }, []);
+
+  const [pageToken, setPageTokenState] = useState<string | null>(null);
+  const pageTokenRef = useRef<string | null>(null);
+  const setPageToken = useCallback((token: string | null) => {
+    pageTokenRef.current = token;
+    setPageTokenState(token);
+  }, []);
 
   const results = useMemo(() => resultPages.flat(), [resultPages]);
+  const resultsRef = useRef<VideoCard[]>([]);
+  useEffect(() => {
+    resultsRef.current = results;
+  }, [results]);
 
   const abortRef = useRef<AbortController | null>(null);
   const queryRef = useRef(query);
@@ -52,14 +90,12 @@ export function useVideoSearch(): VideoSearchResult {
   const freshnessRef = useRef(freshness);
   const sortRef = useRef(sort);
   const videoTypeRef = useRef(videoType);
-  const languageRef = useRef(language);
 
   useEffect(() => { queryRef.current = query; }, [query]);
   useEffect(() => { platformsRef.current = platforms; }, [platforms]);
   useEffect(() => { freshnessRef.current = freshness; }, [freshness]);
   useEffect(() => { sortRef.current = sort; }, [sort]);
   useEffect(() => { videoTypeRef.current = videoType; }, [videoType]);
-  useEffect(() => { languageRef.current = language; }, [language]);
 
   // Transition to 'results' once streaming finishes — separate effect avoids abort race
   const streamingStartedRef = useRef(false);
@@ -84,6 +120,7 @@ export function useVideoSearch(): VideoSearchResult {
     setErrors(null);
     setHasMore(false);
     setPage(0);
+    setPageToken(null);
     setIsStreaming(true);
     setLoadingPlatforms(new Set(platformsRef.current.map(p => String(p))));
 
@@ -94,7 +131,6 @@ export function useVideoSearch(): VideoSearchResult {
       freshness: freshnessRef.current,
       sort: sortRef.current,
       videoType: videoTypeRef.current,
-      language: languageRef.current,
       page: '0',
     });
 
@@ -121,7 +157,7 @@ export function useVideoSearch(): VideoSearchResult {
           for (const line of lines) {
             if (!line.startsWith('data: ')) continue;
             try {
-              const event: PlatformEvent | DoneEvent = JSON.parse(line.slice(6));
+              const event: any = JSON.parse(line.slice(6));
 
               if (event.type === 'platform') {
                 setLoadingPlatforms(prev => {
@@ -137,10 +173,12 @@ export function useVideoSearch(): VideoSearchResult {
                   });
                 }
               } else if (event.type === 'done') {
+                console.log("[KAIROS_DEBUG] stream done received", { nextPageToken: event.nextPageToken, platformCounts: event.platformCounts });
                 setErrors(event.errors);
                 setIsStreaming(false);
+                setPageToken(event.nextPageToken || null);
                 // assume more pages exist if we got results; the regular endpoint confirms accurately
-                setHasMore(Object.values(event.platformCounts ?? {}).some(n => (n as number) > 0));
+                setHasMore(!!event.nextPageToken || Object.values(event.platformCounts ?? {}).some(n => (n as number) > 0));
               }
             } catch {
               // malformed SSE line
@@ -160,35 +198,67 @@ export function useVideoSearch(): VideoSearchResult {
     };
   }, [searchVersion]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const buildParams = useCallback((p: number) => {
-    return new URLSearchParams({
+  const buildParams = useCallback((p: number, t: string | null) => {
+    const sp = new URLSearchParams({
       q: query,
       platforms: platforms.join(','),
       freshness,
       sort,
       videoType,
-      language,
       page: String(p),
     });
-  }, [query, platforms, freshness, sort, videoType, language]);
+    if (t) sp.set('pageToken', t);
+    return sp;
+  }, [query, platforms, freshness, sort, videoType]);
 
   const fetchNextPage = useCallback(async () => {
-    if (isStreaming) return;
-    const nextPage = page + 1;
+    if (isStreamingRef.current || isFetchingRef.current || !hasMoreRef.current) return;
+    setIsFetchingNextPage(true);
+    const nextPage = pageRef.current + 1;
     const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
 
     try {
-      const res = await fetch(`${API_URL}/api/search?${buildParams(nextPage)}`);
-      if (!res.ok) return;
+      const currentToken = pageTokenRef.current;
+      console.log("[KAIROS_DEBUG] fetchNextPage triggered", { nextPage, currentToken });
+      const res = await fetch(`${API_URL}/api/search?${buildParams(nextPage, currentToken)}`);
+      if (!res.ok) {
+        console.error("[KAIROS_DEBUG] fetch failed", res.status);
+        setIsFetchingNextPage(false);
+        return;
+      }
       const data = await res.json();
-      // Append as a new page so it renders in its own masonry container below
-      setResultPages(prev => [...prev, data.results]);
-      setHasMore(data.hasMore);
-      setPage(nextPage);
-    } catch {
-      // silently ignore pagination errors
-    }
-  }, [page, isStreaming, buildParams]);
+      
+      // Filter out any potential duplicate videos that might already exist in resultPages
+      const existingIds = new Set(resultsRef.current.map(v => v.id));
+      const uniqueResults = (data.results || []).filter((v: VideoCard) => !existingIds.has(v.id));
 
-  return { resultPages, results, loadingPlatforms, isStreaming, hasMore, page, errors, fetchNextPage };
+      console.log("[KAIROS_DEBUG] results received", {
+        totalResults: data.results?.length,
+        uniqueResults: uniqueResults.length,
+        hasMore: data.hasMore,
+        nextPageToken: data.nextPageToken
+      });
+
+      setHasMore(data.hasMore);
+      setPageToken(data.nextPageToken || null);
+      setPage(nextPage);
+
+      if (uniqueResults.length > 0) {
+        setResultPages(prev => [...prev, uniqueResults]);
+        setIsFetchingNextPage(false);
+      } else if (data.hasMore) {
+        console.log("[KAIROS_DEBUG] All results were duplicates, auto-fetching next page...");
+        setIsFetchingNextPage(false);
+        setTimeout(() => {
+          fetchNextPage();
+        }, 50);
+      } else {
+        setIsFetchingNextPage(false);
+      }
+    } catch {
+      setIsFetchingNextPage(false);
+    }
+  }, [buildParams, setPageToken, setIsFetchingNextPage, setPage, setHasMore]);
+
+  return { resultPages, results, loadingPlatforms, isStreaming, hasMore, page, errors, fetchNextPage, isFetchingNextPage };
 }

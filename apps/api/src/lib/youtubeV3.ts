@@ -30,16 +30,16 @@ function hashId(id: string): string {
 export interface YouTubeV3Options {
   maxResults?: number;
   freshness?: string;
-  language?: string;
   sort?: string;
+  pageToken?: string;
 }
 
 export async function searchYouTubeShorts(
   apiKey: string,
   keyword: string,
   opts: YouTubeV3Options = {},
-): Promise<VideoCard[]> {
-  const { maxResults = 12, freshness, language, sort } = opts;
+): Promise<{ cards: VideoCard[], nextPageToken?: string }> {
+  const { maxResults = 12, freshness, sort, pageToken } = opts;
 
   // ── Step 1: search.list ──────────────────────────────────────────────────
   const orderMap: Record<string, string> = {
@@ -54,14 +54,13 @@ export async function searchYouTubeShorts(
     q: keyword,
     type: 'video',
     videoDuration: 'short',   // YouTube: < 4 min
+    videoCaption: 'closedCaption', // ONLY videos with captions
     maxResults: String(Math.min(maxResults * 3, 50)), // fetch extra; we filter to ≤60s
     order: orderMap[sort ?? 'viral'] ?? 'viewCount',
     key: apiKey,
   });
 
-  if (language && language !== 'all') {
-    searchParams.set('relevanceLanguage', language);
-  }
+  if (pageToken) searchParams.set('pageToken', pageToken);
 
   if (freshness && freshness !== 'all') {
     const days: Record<string, number> = { today: 1, week: 7, month: 30, year: 365 };
@@ -81,7 +80,7 @@ export async function searchYouTubeShorts(
   const searchData = await searchRes.json();
 
   const ids: string[] = (searchData.items ?? []).map((item: any) => item.id?.videoId).filter(Boolean);
-  if (ids.length === 0) return [];
+  if (ids.length === 0) return { cards: [], nextPageToken: searchData.nextPageToken };
 
   // ── Step 2: videos.list — get stats + duration ───────────────────────────
   const videoParams = new URLSearchParams({
@@ -93,6 +92,24 @@ export async function searchYouTubeShorts(
   const videoRes = await fetch(`${BASE}/videos?${videoParams}`);
   if (!videoRes.ok) throw new Error(`YouTube videos failed: ${videoRes.status}`);
   const videoData = await videoRes.json();
+
+  // ── Step 3: channels.list — get subscriber count ─────────────────────────
+  const channelIds = [...new Set((videoData.items ?? []).map((item: any) => item.snippet?.channelId))].filter(Boolean) as string[];
+  const channelMap: Record<string, number> = {};
+  if (channelIds.length > 0) {
+    const channelParams = new URLSearchParams({
+      part: 'statistics',
+      id: channelIds.join(','),
+      key: apiKey,
+    });
+    const channelRes = await fetch(`${BASE}/channels?${channelParams}`);
+    if (channelRes.ok) {
+      const channelData = await channelRes.json();
+      for (const ch of channelData.items ?? []) {
+        channelMap[ch.id] = parseInt(ch.statistics?.subscriberCount ?? '0', 10);
+      }
+    }
+  }
 
   const cards: VideoCard[] = [];
 
@@ -138,17 +155,17 @@ export async function searchYouTubeShorts(
         handle: null,
         avatarUrl: null,
         profileUrl: `https://www.youtube.com/channel/${item.snippet?.channelId}`,
-        followers: null,
+        followers: channelMap[item.snippet?.channelId] ?? null,
         verified: false,
       },
       publishedAt: publishedAt.toISOString(),
       ageLabel: publishedAt.toLocaleDateString(),
       hashtags: item.snippet?.tags ?? [],
-      language: language && language !== 'all' ? language : null,
+      language: null,
     });
 
     if (cards.length >= maxResults) break;
   }
 
-  return cards;
+  return { cards, nextPageToken: searchData.nextPageToken };
 }

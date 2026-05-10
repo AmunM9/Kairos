@@ -3,15 +3,20 @@ import { VideoCard } from '@kairos/types';
 import { Play, Eye, Heart, MessageCircle } from 'lucide-react';
 import { formatViews, formatDuration } from '../lib/format';
 import PlatformBadge from './PlatformBadge';
+import { useAppStore } from '../store/useAppStore';
 
 interface VideoCardProps {
   video: VideoCard;
 }
 
 const VideoCardComponent: React.FC<VideoCardProps> = ({ video }) => {
+  const selectVideo = useAppStore(s => s.selectVideo);
   return (
-    <article className="group rounded-xl overflow-hidden bg-bg-elevated border border-border-subtle hover:border-border-default hover:shadow-glow-md transition-all duration-250 block mb-4 break-inside-avoid">
-      <a href={video.url} target="_blank" rel="noopener noreferrer" className="block relative">
+    <article
+      className="group rounded-xl overflow-hidden bg-bg-elevated border border-border-subtle hover:border-border-default hover:shadow-glow-md transition-all duration-250 block mb-4 break-inside-avoid cursor-pointer"
+      onClick={() => selectVideo(video)}
+    >
+      <div className="block relative">
         <div
           className="relative overflow-hidden bg-bg-secondary"
           style={{ aspectRatio: String(video.aspectRatio && video.aspectRatio > 0 ? video.aspectRatio : 0.5625) }}
@@ -21,7 +26,6 @@ const VideoCardComponent: React.FC<VideoCardProps> = ({ video }) => {
               src={video.thumbnailUrl}
               alt={video.title}
               className="w-full h-full object-cover transition-transform duration-500 ease-out group-hover:scale-105"
-              loading="lazy"
             />
           ) : (
             <div className="w-full h-full flex items-center justify-center text-text-tertiary">
@@ -97,7 +101,7 @@ const VideoCardComponent: React.FC<VideoCardProps> = ({ video }) => {
             )}
           </div>
         </div>
-      </a>
+      </div>
     </article>
   );
 };

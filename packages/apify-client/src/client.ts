@@ -47,22 +47,4 @@ export class KairosApifyClient {
     return this.runActor<any, any>('streamers/youtube-scraper', input, maxItems, { timeout: 90, memory: 1024 });
   }
 
-  async searchTikTok(keyword: string, maxItems: number) {
-    return this.runActor<any, any>('clockworks/tiktok-scraper', {
-      searchQueries: [keyword],
-      resultsPerPage: maxItems,
-      shouldDownloadVideos: false,
-      shouldDownloadCovers: false,
-    }, maxItems, { timeout: 60, memory: 512 });
-  }
-
-  async searchInstagram(keyword: string, maxItems: number) {
-    const tag = keyword.replace(/\s+/g, '');
-    return this.runActor<any, any>('apify/instagram-scraper', {
-      directUrls: [`https://www.instagram.com/explore/tags/${tag}/`],
-      resultsType: 'reels',
-      resultsLimit: maxItems,
-      addParentData: false,
-    }, maxItems, { timeout: 60, memory: 512 });
-  }
 }

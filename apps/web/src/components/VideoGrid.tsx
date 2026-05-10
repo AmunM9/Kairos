@@ -25,7 +25,7 @@ function useColumnCount() {
 }
 
 const VideoGrid = () => {
-  const { results, loadingPlatforms, isStreaming, hasMore, errors, fetchNextPage } = useVideoSearch();
+  const { results, loadingPlatforms, isStreaming, hasMore, errors, fetchNextPage, isFetchingNextPage } = useVideoSearch();
   const sentinelRef = useRef<HTMLDivElement>(null);
   const colCount = useColumnCount();
 
@@ -47,14 +47,18 @@ const VideoGrid = () => {
   // Trigger fetchNextPage when the sentinel scrolls into view
   useEffect(() => {
     const sentinel = sentinelRef.current;
-    if (!sentinel || !hasMore || isStreaming) return;
+    if (!sentinel) return;
     const observer = new IntersectionObserver(
-      (entries) => { if (entries[0].isIntersecting) fetchNextPage(); },
-      { rootMargin: '400px' },
+      (entries) => {
+        if (entries[0].isIntersecting && hasMore && !isStreaming && !isFetchingNextPage) {
+          fetchNextPage();
+        }
+      },
+      { rootMargin: '600px' }, // higher margin for smoother infinite scrolling
     );
     observer.observe(sentinel);
     return () => observer.disconnect();
-  }, [hasMore, isStreaming, fetchNextPage]);
+  }, [fetchNextPage, hasMore, isStreaming, isFetchingNextPage]);
 
   const noResults = !isStreaming && results.length === 0;
   const fullSkeleton = isStreaming && results.length === 0;
@@ -121,7 +125,9 @@ const VideoGrid = () => {
       {/* Sentinel: IntersectionObserver triggers fetchNextPage before reaching bottom */}
       <div ref={sentinelRef} className="h-8 flex items-center justify-center">
         {hasMore && !isStreaming && (
-          <span className="font-mono text-xs text-text-tertiary animate-pulse">cargando más…</span>
+          <span className="font-mono text-xs text-text-tertiary animate-pulse">
+            {isFetchingNextPage ? 'cargando más...' : ''}
+          </span>
         )}
       </div>
     </div>

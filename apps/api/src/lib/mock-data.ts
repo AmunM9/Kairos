@@ -1,47 +1,68 @@
 import { VideoCard } from '@kairos/types';
 
-const generateMockVideos = (keyword: string): VideoCard[] => {
+export const getMockVideos = (keyword: string, page: number = 0): VideoCard[] => {
   const vids: VideoCard[] = [];
-  for (let i = 0; i < 21; i++) {
-    const p = i % 3 === 0 ? 'youtube' : i % 3 === 1 ? 'tiktok' : 'instagram';
+  const start = page * 12;
+  const end = start + 12;
+
+  // Curated list of vertical backgrounds for variety
+  const portraitIds = [
+    'photo-1517841905240-472988babdf9',
+    'photo-1534528741775-53994a69daeb',
+    'photo-1506794778202-cad84cf45f1d',
+    'photo-1507003211169-0a1dd7228f2d',
+    'photo-1494790108377-be9c29b29330',
+    'photo-1524504388940-b1c1722653e1',
+    'photo-1488426862026-3ee34a7d66df',
+    'photo-1531746020798-e6953c6e8e04',
+    'photo-1544005313-94ddf0286df2',
+    'photo-1508214751196-bcfd4ca60f91',
+    'photo-1519085360753-af0119f7cbe7',
+    'photo-1500648767791-00dcc994a43e',
+  ];
+
+  for (let i = start; i < end; i++) {
+    const id = `mock-${keyword}-${i}`;
+    const views = Math.floor(Math.random() * 800_000) + 50_000;
+    const likes = Math.floor(views * (Math.random() * 0.08 + 0.02));
+    const comments = Math.floor(likes * (Math.random() * 0.15 + 0.05));
+    const publishedAt = new Date(Date.now() - (i * 1.5 * 24 * 3600 * 1000));
+    
+    const unsplashId = portraitIds[i % portraitIds.length];
+    const thumbnailUrl = `https://images.unsplash.com/${unsplashId}?auto=format&fit=crop&w=400&h=711&q=80`;
+
     vids.push({
-      id: `mock-${keyword}-${i}`,
-      url: `https://example.com/mock-${i}`,
-      platform: p,
-      contentType: p === 'tiktok' ? 'video' : p === 'youtube' ? 'video' : 'post',
-      title: `Mock Video about ${keyword} ${i}`,
-      description: `A lovely description for ${keyword} video.`,
-      thumbnailUrl: `https://picsum.photos/seed/${keyword}${i}/640/360`,
-      duration: '02:34',
-      orientation: i % 2 === 0 ? 'vertical' : 'horizontal',
-      aspectRatio: i % 2 === 0 ? 0.5625 : 1.7778,
-      views: Math.floor(Math.random() * 1000000),
-      likes: Math.floor(Math.random() * 100000),
-      commentsCount: Math.floor(Math.random() * 5000),
-      shares: null,
-      saves: null,
-      engagementRate: Math.random() * 0.1,
-      viralScore: Math.floor(Math.random() * 100),
-      viralTier: 'mid',
+      id,
+      url: `https://www.youtube.com/shorts/${id}`,
+      platform: 'youtube',
+      contentType: 'short',
+      title: `Estructura Viral para ${keyword} — Patrón #${i + 1}`,
+      description: `Analizamos en detalle por qué este video de ${keyword} se volvió masivo. Estructura visual de línea de tiempo paso a paso.`,
+      thumbnailUrl,
+      duration: '0:45',
+      orientation: 'vertical',
+      aspectRatio: 0.5625,
+      views,
+      likes,
+      commentsCount: comments,
+      shares: Math.floor(likes * 0.3),
+      saves: Math.floor(likes * 0.45),
+      engagementRate: (likes + comments) / views,
+      viralScore: Math.floor(Math.random() * 25) + 75,
+      viralTier: Math.random() > 0.4 ? 'fire' : 'high',
       creator: {
-        name: `Creator ${p}`,
-        handle: `@creator_${p}`,
-        avatarUrl: `https://picsum.photos/seed/user${i}/100/100`,
-        profileUrl: null,
-        followers: Math.floor(Math.random() * 1000000),
-        verified: i % 4 === 0,
+        name: `Creador ${keyword.charAt(0).toUpperCase() + keyword.slice(1)} ${i + 1}`,
+        handle: `@creador_${keyword}_${i + 1}`,
+        avatarUrl: `https://images.unsplash.com/${unsplashId}?auto=format&fit=crop&w=100&h=100&q=80`,
+        profileUrl: '#',
+        followers: Math.floor(Math.random() * 250_000) + 15_000,
+        verified: i % 3 === 0,
       },
-      publishedAt: new Date().toISOString(),
-      ageLabel: '2 days ago',
-      hashtags: ['mock', keyword],
-      language: null,
+      publishedAt: publishedAt.toISOString(),
+      ageLabel: `${i + 1}d atrás`,
+      hashtags: ['mock', keyword, 'viral', 'reels', 'shorts'],
+      language: 'es',
     });
   }
   return vids;
-};
-
-export const MOCK_DATA: Record<string, VideoCard[]> = {
-  branding: generateMockVideos('branding'),
-  design: generateMockVideos('design'),
-  music: generateMockVideos('music'),
 };

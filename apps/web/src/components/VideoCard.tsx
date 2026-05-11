@@ -13,7 +13,7 @@ const VideoCardComponent: React.FC<VideoCardProps> = ({ video }) => {
   const selectVideo = useAppStore(s => s.selectVideo);
   return (
     <article
-      className="group rounded-xl overflow-hidden bg-bg-elevated border border-border-subtle hover:border-border-default hover:shadow-glow-md transition-all duration-250 block mb-4 break-inside-avoid cursor-pointer"
+      className="group rounded-xl overflow-hidden bg-bg-elevated border border-border-subtle hover:border-border-default hover:shadow-glow-md transition-all duration-250 flex flex-col h-full cursor-pointer"
       onClick={() => selectVideo(video)}
     >
       <div className="block relative">
@@ -60,8 +60,10 @@ const VideoCardComponent: React.FC<VideoCardProps> = ({ video }) => {
             </div>
           )}
         </div>
+      </div>
 
-        <div className="p-3 space-y-2">
+      <div className="p-3 space-y-3 flex-1 flex flex-col justify-between">
+        <div className="space-y-2">
           <h4 className="font-semibold text-sm leading-snug line-clamp-2 text-text-primary">
             {video.title || 'Sin título'}
           </h4>
@@ -79,27 +81,27 @@ const VideoCardComponent: React.FC<VideoCardProps> = ({ video }) => {
               {video.creator.verified && <span className="text-blue-500 text-xs">✓</span>}
             </div>
           </div>
+        </div>
 
-          <div className="flex items-center gap-2 text-text-tertiary font-mono text-xs pt-1 border-t border-border-subtle/50">
-            {video.views != null && (
-              <div className="flex items-center gap-1">
-                <Eye size={12} />
-                <span>{formatViews(video.views)}</span>
-              </div>
-            )}
-            {video.likes != null && (
-              <div className="flex items-center gap-1">
-                <Heart size={12} />
-                <span>{formatViews(video.likes)}</span>
-              </div>
-            )}
-            {video.commentsCount != null && (
-              <div className="flex items-center gap-1">
-                <MessageCircle size={12} />
-                <span>{formatViews(video.commentsCount)}</span>
-              </div>
-            )}
-          </div>
+        <div className="flex items-center justify-between text-text-secondary font-mono text-xs pt-2 border-t border-border-subtle/50">
+          {video.views != null && (
+            <div className="flex items-center gap-1" title={`${video.views.toLocaleString()} vistas`}>
+              <Eye size={14} className="text-blue-500/80" />
+              <span className="font-medium">{formatViews(video.views)}</span>
+            </div>
+          )}
+          {video.likes != null && (
+            <div className="flex items-center gap-1" title={`${video.likes.toLocaleString()} likes`}>
+              <Heart size={14} className="text-rose-500/80" />
+              <span className="font-medium">{formatViews(video.likes)}</span>
+            </div>
+          )}
+          {video.commentsCount != null && (
+            <div className="flex items-center gap-1" title={`${video.commentsCount.toLocaleString()} comentarios`}>
+              <MessageCircle size={14} className="text-teal-500/80" />
+              <span className="font-medium">{formatViews(video.commentsCount)}</span>
+            </div>
+          )}
         </div>
       </div>
     </article>

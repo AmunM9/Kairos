@@ -1,0 +1,35 @@
+{
+  "version": 2,
+  "builds": [
+    {
+      "src": "apps/api/dist/server.js",
+      "use": "@vercel/node",
+      "config": {
+        "includeFiles": [
+          "apps/api/dist/**"
+        ]
+      }
+    },
+    {
+      "src": "apps/web/dist/**",
+      "use": "@vercel/static"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/api/(.*)",
+      "dest": "apps/api/dist/server.js"
+    },
+    {
+      "src": "/assets/(.*)",
+      "dest": "/apps/web/dist/assets/$1",
+      "headers": {
+        "cache-control": "public, max-age=31536000, immutable"
+      }
+    },
+    {
+      "src": "/(.*)",
+      "dest": "/apps/web/dist/index.html"
+    }
+  ]
+}

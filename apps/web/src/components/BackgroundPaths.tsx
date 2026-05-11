@@ -9,7 +9,7 @@ function FloatingPaths({ position, count }: { position: number; count: number })
   }));
 
   return (
-    <div className="absolute inset-0 pointer-events-none opacity-40 [filter:blur(0.4px)] will-change-transform transform-gpu">
+    <div className="absolute inset-0 pointer-events-none opacity-40 [filter:blur(0.4px)]">
       <svg
         className="w-full h-full"
         style={{ color: "#F4F6F8" }}
@@ -34,7 +34,6 @@ function FloatingPaths({ position, count }: { position: number; count: number })
               repeat: Infinity,
               ease: "linear",
             }}
-            style={{ willChange: "transform, opacity" }}
           />
         ))}
       </svg>
@@ -48,7 +47,7 @@ export function BackgroundPaths() {
   useEffect(() => {
     const checkMobile = () => {
       const isMobile = window.innerWidth < 768;
-      setCount(isMobile ? 5 : 12); // Restringir cantidad para alto rendimiento
+      setCount(isMobile ? 5 : 12); // Restringir cantidad para alto rendimiento sin saturar
     };
     checkMobile();
     window.addEventListener("resize", checkMobile);

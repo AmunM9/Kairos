@@ -29,6 +29,16 @@ export interface VideoSearchResult {
   isFetchingNextPage: boolean;
 }
 
+const getApiUrl = () => {
+  if (import.meta.env.VITE_API_URL) return import.meta.env.VITE_API_URL;
+  if (import.meta.env.PROD) return '';
+  const hostname = window.location.hostname;
+  if (hostname !== 'localhost' && hostname !== '127.0.0.1') {
+    return `http://${hostname}:3001`;
+  }
+  return 'http://localhost:3001';
+};
+
 export function useVideoSearch(): VideoSearchResult {
   const query = useAppStore(state => state.query);
   const platforms = useAppStore(state => state.platforms);
@@ -124,7 +134,7 @@ export function useVideoSearch(): VideoSearchResult {
     setIsStreaming(true);
     setLoadingPlatforms(new Set(platformsRef.current.map(p => String(p))));
 
-    const API_URL = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? '' : 'http://localhost:3001');
+    const API_URL = getApiUrl();
     const params = new URLSearchParams({
       q: queryRef.current,
       platforms: platformsRef.current.join(','),
@@ -215,7 +225,7 @@ export function useVideoSearch(): VideoSearchResult {
     if (isStreamingRef.current || isFetchingRef.current || !hasMoreRef.current) return;
     setIsFetchingNextPage(true);
     const nextPage = pageRef.current + 1;
-    const API_URL = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? '' : 'http://localhost:3001');
+    const API_URL = getApiUrl();
 
     try {
       const currentToken = pageTokenRef.current;

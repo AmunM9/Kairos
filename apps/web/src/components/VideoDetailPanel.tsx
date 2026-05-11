@@ -49,7 +49,17 @@ function getEmbedUrl(video: VideoCard): string | null {
   return null;
 }
 
-const API_URL = import.meta.env.VITE_API_URL || (import.meta.env.PROD ? '' : 'http://localhost:3001');
+const getApiUrl = () => {
+  if (import.meta.env.VITE_API_URL) return import.meta.env.VITE_API_URL;
+  if (import.meta.env.PROD) return '';
+  const hostname = window.location.hostname;
+  if (hostname !== 'localhost' && hostname !== '127.0.0.1') {
+    return `http://${hostname}:3001`;
+  }
+  return 'http://localhost:3001';
+};
+
+const API_URL = getApiUrl();
 
 export default function VideoDetailPanel({ video, onClose }: Props) {
   const [analysis, setAnalysis] = useState<VideoAnalysis | null>(null);

@@ -42,22 +42,27 @@ function FloatingPaths({ position, count }: { position: number; count: number })
 }
 
 export function BackgroundPaths() {
-  const [count, setCount] = useState(8);
+  const [isMobileDevice, setIsMobileDevice] = useState(false);
 
   useEffect(() => {
-    const checkMobile = () => {
-      const isMobile = window.innerWidth < 768;
-      setCount(isMobile ? 5 : 12); // Restringir cantidad para alto rendimiento sin saturar
-    };
-    checkMobile();
-    window.addEventListener("resize", checkMobile);
-    return () => window.removeEventListener("resize", checkMobile);
+    // 1. Detecta si el dispositivo principal usa pantalla táctil (coarse pointer) como celulares o tablets
+    const hasCoarsePointer = window.matchMedia("(pointer: coarse)").matches;
+    
+    // 2. Detecta si el sistema operativo en el User-Agent es móvil
+    const isMobileOS = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+      navigator.userAgent
+    );
+
+    setIsMobileDevice(hasCoarsePointer || isMobileOS);
   }, []);
+
+  // Si es un dispositivo móvil real, desactivar por completo los trazos pesados para un rendimiento óptimo
+  if (isMobileDevice) return null;
 
   return (
     <div className="absolute inset-0 overflow-hidden pointer-events-none">
-      <FloatingPaths position={1} count={count} />
-      <FloatingPaths position={-1} count={count} />
+      <FloatingPaths position={1} count={36} />
+      <FloatingPaths position={-1} count={36} />
     </div>
   );
 }

@@ -1,15 +1,15 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 
-function FloatingPaths({ position }: { position: number }) {
-  const paths = Array.from({ length: 36 }, (_, i) => ({
+function FloatingPaths({ position, count }: { position: number; count: number }) {
+  const paths = Array.from({ length: count }, (_, i) => ({
     id: i,
     d: `M-${380 - i * 5 * position} -${189 + i * 6}C-${380 - i * 5 * position} -${189 + i * 6} -${312 - i * 5 * position} ${216 - i * 6} ${152 - i * 5 * position} ${343 - i * 6}C${616 - i * 5 * position} ${470 - i * 6} ${684 - i * 5 * position} ${875 - i * 6} ${684 - i * 5 * position} ${875 - i * 6}`,
     width: 0.5 + i * 0.03,
   }));
 
   return (
-    <div className="absolute inset-0 pointer-events-none opacity-50 [filter:blur(0.4px)]">
+    <div className="absolute inset-0 pointer-events-none opacity-40 [filter:blur(0.4px)] will-change-transform transform-gpu">
       <svg
         className="w-full h-full"
         style={{ color: "#F4F6F8" }}
@@ -34,6 +34,7 @@ function FloatingPaths({ position }: { position: number }) {
               repeat: Infinity,
               ease: "linear",
             }}
+            style={{ willChange: "transform, opacity" }}
           />
         ))}
       </svg>
@@ -42,10 +43,22 @@ function FloatingPaths({ position }: { position: number }) {
 }
 
 export function BackgroundPaths() {
+  const [count, setCount] = useState(8);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      const isMobile = window.innerWidth < 768;
+      setCount(isMobile ? 5 : 12); // Restringir cantidad para alto rendimiento
+    };
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
+
   return (
     <div className="absolute inset-0 overflow-hidden pointer-events-none">
-      <FloatingPaths position={1} />
-      <FloatingPaths position={-1} />
+      <FloatingPaths position={1} count={count} />
+      <FloatingPaths position={-1} count={count} />
     </div>
   );
 }

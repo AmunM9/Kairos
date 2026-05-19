@@ -4,6 +4,8 @@
 
 Kairos es una plataforma web full-stack premium y cinemática diseñada para la búsqueda unificada y el análisis inteligente de referencias visuales de formato vertical y horizontal (YouTube Shorts y videos). Utiliza inteligencia artificial para desglosar la psicología, estructura de guion, ganchos de retención y estrategias de replicación de contenido viral de forma automática.
 
+**VISITA KAIROS EN**: https://kairos-rho-silk.vercel.app/
+
 ---
 
 ## ✨ Características Principales
